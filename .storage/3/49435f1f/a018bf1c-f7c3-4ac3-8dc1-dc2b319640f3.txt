@@ -1,0 +1,77 @@
+$ find /workspace -type f -name "*.zip" -o -name "*.py" -o -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" -o -name "*.md" | head -20
+/workspace/.MGXEnv.json
+/workspace/.wiki.md
+/workspace/uploads/sb1-tkvgd6x9.zip
+$ cd /workspace && unzip -o uploads/sb1-tkvgd6x9.zip
+
+Archive:  uploads/sb1-tkvgd6x9.zip
+   creating: app/
+   creating: lib/
+ extracting: .env                    
+   creating: .bolt/
+   creating: hooks/
+ extracting: .npmrc                  
+   creating: assets/
+ extracting: app.json                
+   creating: contexts/
+   creating: supabase/
+ extracting: .gitignore              
+   creating: app/(tabs)/
+   creating: components/
+ extracting: .prettierrc             
+ extracting: package.json            
+   creating: assets/images/
+ extracting: tsconfig.json           
+ extracting: app/_layout.tsx         
+ extracting: lib/database.ts         
+ extracting: lib/supabase.ts         
+ extracting: .bolt/config.json       
+ extracting: package-lock.json       
+ extracting: app/(tabs)/run.tsx      
+ extracting: app/+not-found.tsx      
+   creating: supabase/migrations/
+ extracting: app/(tabs)/index.tsx    
+ extracting: app/(tabs)/_layout.tsx  
+ extracting: app/(tabs)/history.tsx  
+ extracting: app/(tabs)/profile.tsx  
+ extracting: assets/images/icon.png  
+ extracting: components/AuthModal.tsx  
+ extracting: contexts/AuthContext.tsx  
+ extracting: assets/images/favicon.png  
+ extracting: hooks/useFrameworkReady.ts  
+ extracting: supabase/migrations/20250923134824_icy_credit.sql  
+ extracting: supabase/migrations/20250923134907_holy_plain.sql  
+ extracting: supabase/migrations/20250923134835_ivory_shore.sql  
+ extracting: supabase/migrations/20250923134855_orange_snow.sql  
+ extracting: supabase/migrations/20250923134812_morning_water.sql  
+ extracting: supabase/migrations/20251028171042_create_auth_tables.sql  
+ extracting: expo-env.d.ts           
+$ ls -la
+
+total 4923
+drwxr-xr-x 92 root root 2285568 Oct 28 10:40 .
+drwxr-xr-x  1 root root     130 Oct 28 10:35 ..
+-rw-r--r--  1 root root  770752 Oct 28 10:36 .MGXEnv.json
+drwxr-xr-x  2 root root    4096 Oct 28 10:40 .MGXTools
+drwxr-xr-x  3 root root    8192 Oct 28  2025 .bolt
+-rw-r--r--  1 root root     305 Oct 28  2025 .env
+drwxr-xr-x 67 root root  950272 Oct 28 10:37 .git
+-rw-r--r--  1 root root    1472 Oct 28 10:32 .gitattributes
+-rw-r--r--  1 root root     301 Oct 28  2025 .gitignore
+-rw-r--r--  1 root root      22 Oct 28  2025 .npmrc
+-rw-r--r--  1 root root      89 Oct 28  2025 .prettierrc
+-rw-r--r--  1 root root     201 Oct 28 10:40 .timeline.json
+-rw-r--r--  1 root root    1317 Oct 28 10:37 .wiki.md
+drwxr-xr-x 10 root root   77824 Oct 28  2025 app
+-rw-r--r--  1 root root     563 Oct 28  2025 app.json
+drwxr-xr-x  5 root root   36864 Oct 28  2025 assets
+drwxr-xr-x  3 root root   16384 Oct 28  2025 components
+drwxr-xr-x  3 root root    8192 Oct 28  2025 contexts
+-rw-r--r--  1 root root     110 Oct 28  2025 expo-env.d.ts
+drwxr-xr-x  3 root root    8192 Oct 28  2025 hooks
+drwxr-xr-x  4 root root   16384 Oct 28  2025 lib
+-rw-r--r--  1 root root  336584 Oct 28  2025 package-lock.json
+-rw-r--r--  1 root root    1463 Oct 28  2025 package.json
+drwxr-xr-x  9 root root   40960 Oct 28  2025 supabase
+-rw-r--r--  1 root root     253 Oct 28  2025 tsconfig.json
+drwxr-xr-x  3 root root  471040 Oct 28 10:36 uploads

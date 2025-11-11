@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>플로깅 앱 데이터베이스 구조 시각화</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .db-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .table-body {
+            padding: 20px;
+        }
+
+        .field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .field:last-child {
+            border-bottom: none;
+        }
+
+        .field-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .field-type {
+            color: #666;
+            font-size: 0.9rem;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .primary-key {
+            background: #FFD700;
+            color: #333;
+        }
+
+        .foreign-key {
+            background: #87CEEB;
+            color: #333;
+        }
+
+        .relationships {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .relationships h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .relationship-item {
+            background: white;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+            font-weight: 500;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .data-flow {
+            background: #e8f5e8;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .data-flow h3 {
+            color: #2d5a2d;
+            margin-bottom: 15px;
+        }
+
+        .flow-step {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏃‍♂️ 플로깅 앱 데이터베이스 구조</h1>
+            <p>환경을 생각하는 러닝 앱의 완전한 데이터 설계</p>
+        </div>
+
+        <div class="content">
+            <!-- 통계 섹션 -->
+            <div class="section">
+                <h2>📊 데이터베이스 개요</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">9</div>
+                        <div class="stat-label">핵심 테이블</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">데이터 필드</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">7</div>
+                        <div class="stat-label">인덱스</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">RLS 보안</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 테이블 구조 -->
+            <div class="section">
+                <h2>🗄️ 테이블 구조</h2>
+                <div class="tables-grid">
+                    <!-- 사용자 테이블 -->
+                    <div class="table-card">
+                        <div class="table-header">👤 users (사용자 정보)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">email</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">username</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">total_distance</span>
+                                <span class="field-type">DECIMAL(10,2)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">total_calories</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">level</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 플로깅 세션 테이블 -->
+                    <div class="table-card">
+                        <div class="table-header">🏃‍♂️ plogging_sessions (운동 기록)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">user_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">start_time</span>
+                                <span class="field-type">TIMESTAMP</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">distance</span>
+                                <span class="field-type">DECIMAL(10,2)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">calories_burned</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">trash_collected</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GPS 경로 포인트 -->
+                    <div class="table-card">
+                        <div class="table-header">📍 route_points (GPS 경로)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">session_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">latitude</span>
+                                <span class="field-type">DECIMAL(10,8)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">longitude</span>
+                                <span class="field-type">DECIMAL(11,8)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">speed</span>
+                                <span class="field-type">DECIMAL(5,2)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">timestamp</span>
+                                <span class="field-type">TIMESTAMP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 쓰레기 수집 기록 -->
+                    <div class="table-card">
+                        <div class="table-header">🗑️ trash_collections (쓰레기 수집)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">session_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">trash_type</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">quantity</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">photo_url</span>
+                                <span class="field-type">TEXT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">location_name</span>
+                                <span class="field-type">VARCHAR(200)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 업적 시스템 -->
+                    <div class="table-card">
+                        <div class="table-header">🏆 achievements (업적)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">name</span>
+                                <span class="field-type">VARCHAR(100)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">category</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">requirement_value</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">experience_reward</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 사용자 업적 -->
+                    <div class="table-card">
+                        <div class="table-header">🎖️ user_achievements (사용자 업적)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">user_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">achievement_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">achieved_at</span>
+                                <span class="field-type">TIMESTAMP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 일별 통계 -->
+                    <div class="table-card">
+                        <div class="table-header">📈 user_stats_daily (일별 통계)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">user_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">date</span>
+                                <span class="field-type">DATE</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">sessions_count</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">total_distance</span>
+                                <span class="field-type">DECIMAL(10,2)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 챌린지 -->
+                    <div class="table-card">
+                        <div class="table-header">🎯 challenges (챌린지)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">title</span>
+                                <span class="field-type">VARCHAR(200)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">challenge_type</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">target_value</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">reward_experience</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 사용자 챌린지 -->
+                    <div class="table-card">
+                        <div class="table-header">🎮 user_challenges (사용자 챌린지)</div>
+                        <div class="table-body">
+                            <div class="field">
+                                <span class="field-name">id</span>
+                                <span class="field-type primary-key">UUID PK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">user_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">challenge_id</span>
+                                <span class="field-type foreign-key">UUID FK</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">current_progress</span>
+                                <span class="field-type">INTEGER</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">is_completed</span>
+                                <span class="field-type">BOOLEAN</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 관계도 -->
+            <div class="section">
+                <h2>🔗 테이블 관계도</h2>
+                <div class="relationships">
+                    <h3>주요 관계</h3>
+                    <div class="relationship-item">
+                        <strong>auth.users</strong> → <strong>plogging_sessions</strong> (1:N) - 한 사용자가 여러 운동 세션을 가질 수 있음
+                    </div>
+                    <div class="relationship-item">
+                        <strong>plogging_sessions</strong> → <strong>route_points</strong> (1:N) - 한 세션에 여러 GPS 포인트
+                    </div>
+                    <div class="relationship-item">
+                        <strong>plogging_sessions</strong> → <strong>trash_collections</strong> (1:N) - 한 세션에 여러 쓰레기 수집 기록
+                    </div>
+                    <div class="relationship-item">
+                        <strong>users</strong> ↔ <strong>achievements</strong> (N:M) - 사용자와 업적의 다대다 관계
+                    </div>
+                    <div class="relationship-item">
+                        <strong>users</strong> ↔ <strong>challenges</strong> (N:M) - 사용자와 챌린지의 다대다 관계
+                    </div>
+                </div>
+            </div>
+
+            <!-- 데이터 흐름 -->
+            <div class="section">
+                <h2>🔄 데이터 흐름</h2>
+                
+                <div class="data-flow">
+                    <h3>1. 플로깅 세션 시작</h3>
+                    <div class="flow-step">
+                        <strong>Step 1:</strong> plogging_sessions 테이블에 새 세션 생성 (start_time 기록)
+                    </div>
+                    <div class="flow-step">
+                        <strong>Step 2:</strong> GPS 포인트를 route_points에 실시간 저장
+                    </div>
+                    <div class="flow-step">
+                        <strong>Step 3:</strong> 쓰레기 발견 시 trash_collections에 기록 (사진, 위치, 타입)
+                    </div>
+                </div>
+
+                <div class="data-flow">
+                    <h3>2. 세션 종료 및 통계 업데이트</h3>
+                    <div class="flow-step">
+                        <strong>Step 1:</strong> plogging_sessions 업데이트 (end_time, 거리, 칼로리 등)
+                    </div>
+                    <div class="flow-step">
+                        <strong>Step 2:</strong> user_stats_daily 일별 통계 업데이트
+                    </div>
+                    <div class="flow-step">
+                        <strong>Step 3:</strong> 업적 달성 확인 및 user_achievements 업데이트
+                    </div>
+                    <div class="flow-step">
+                        <strong>Step 4:</strong> 챌린지 진행도 업데이트 (user_challenges)
+                    </div>
+                </div>
+            </div>
+
+            <!-- 주요 기능 -->
+            <div class="section">
+                <h2>⚡ 주요 기능</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>🔐 보안</h3>
+                        <p>Row Level Security (RLS)로 사용자별 데이터 접근 제어. 각 사용자는 자신의 데이터만 접근 가능</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📊 실시간 통계</h3>
+                        <p>일별/주별/월별 통계 자동 집계. 거리, 칼로리, 쓰레기 수집량 등 종합 분석</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🏆 게임화</h3>
+                        <p>업적 시스템과 챌린지로 사용자 참여도 향상. 레벨업과 경험치 시스템</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📍 GPS 추적</h3>
+                        <p>정확한 경로 기록과 실시간 위치 추적. 고도, 속도, 정확도 정보 포함</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🗑️ 환경 기여</h3>
+                        <p>쓰레기 수집 기록과 사진 저장. 환경 보호 활동의 시각적 증거 제공</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>⚡ 성능 최적화</h3>
+                        <p>인덱스 최적화와 배치 처리로 빠른 응답 속도. 대용량 GPS 데이터 효율 처리</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 구현 고려사항 -->
+            <div class="section">
+                <h2>💡 구현 시 고려사항</h2>
+                <div class="data-flow">
+                    <div class="flow-step">
+                        <strong>실시간 GPS 추적:</strong> route_points 테이블에 배치 삽입으로 성능 최적화
+                    </div>
+                    <div class="flow-step">
+                        <strong>이미지 저장:</strong> Supabase Storage를 활용한 쓰레기 사진 저장
+                    </div>
+                    <div class="flow-step">
+                        <strong>통계 계산:</strong> 트리거 함수를 활용한 자동 통계 업데이트
+                    </div>
+                    <div class="flow-step">
+                        <strong>캐싱:</strong> 자주 조회되는 통계 데이터는 Redis 등으로 캐싱
+                    </div>
+                    <div class="flow-step">
+                        <strong>데이터 압축:</strong> 오래된 GPS 포인트는 압축하여 저장 공간 절약
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

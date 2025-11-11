@@ -1,0 +1,221 @@
+$ find /workspace -type f -name "*.zip" -o -name "*.py" -o -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" -o -name "*.md" | head -20
+/workspace/.MGXEnv.json
+/workspace/.wiki.md
+/workspace/uploads/sb1-tkvgd6x9.zip
+$ cd /workspace && unzip -o uploads/sb1-tkvgd6x9.zip
+
+Archive:  uploads/sb1-tkvgd6x9.zip
+   creating: app/
+   creating: lib/
+ extracting: .env                    
+   creating: .bolt/
+   creating: hooks/
+ extracting: .npmrc                  
+   creating: assets/
+ extracting: app.json                
+   creating: contexts/
+   creating: supabase/
+ extracting: .gitignore              
+   creating: app/(tabs)/
+   creating: components/
+ extracting: .prettierrc             
+ extracting: package.json            
+   creating: assets/images/
+ extracting: tsconfig.json           
+ extracting: app/_layout.tsx         
+ extracting: lib/database.ts         
+ extracting: lib/supabase.ts         
+ extracting: .bolt/config.json       
+ extracting: package-lock.json       
+ extracting: app/(tabs)/run.tsx      
+ extracting: app/+not-found.tsx      
+   creating: supabase/migrations/
+ extracting: app/(tabs)/index.tsx    
+ extracting: app/(tabs)/_layout.tsx  
+ extracting: app/(tabs)/history.tsx  
+ extracting: app/(tabs)/profile.tsx  
+ extracting: assets/images/icon.png  
+ extracting: components/AuthModal.tsx  
+ extracting: contexts/AuthContext.tsx  
+ extracting: assets/images/favicon.png  
+ extracting: hooks/useFrameworkReady.ts  
+ extracting: supabase/migrations/20250923134824_icy_credit.sql  
+ extracting: supabase/migrations/20250923134907_holy_plain.sql  
+ extracting: supabase/migrations/20250923134835_ivory_shore.sql  
+ extracting: supabase/migrations/20250923134855_orange_snow.sql  
+ extracting: supabase/migrations/20250923134812_morning_water.sql  
+ extracting: supabase/migrations/20251028171042_create_auth_tables.sql  
+ extracting: expo-env.d.ts           
+$ ls -la
+
+total 4923
+drwxr-xr-x 92 root root 2285568 Oct 28 10:40 .
+drwxr-xr-x  1 root root     130 Oct 28 10:35 ..
+-rw-r--r--  1 root root  770752 Oct 28 10:36 .MGXEnv.json
+drwxr-xr-x  2 root root    4096 Oct 28 10:40 .MGXTools
+drwxr-xr-x  3 root root    8192 Oct 28  2025 .bolt
+-rw-r--r--  1 root root     305 Oct 28  2025 .env
+drwxr-xr-x 67 root root  950272 Oct 28 10:37 .git
+-rw-r--r--  1 root root    1472 Oct 28 10:32 .gitattributes
+-rw-r--r--  1 root root     301 Oct 28  2025 .gitignore
+-rw-r--r--  1 root root      22 Oct 28  2025 .npmrc
+-rw-r--r--  1 root root      89 Oct 28  2025 .prettierrc
+-rw-r--r--  1 root root     201 Oct 28 10:40 .timeline.json
+-rw-r--r--  1 root root    1317 Oct 28 10:37 .wiki.md
+drwxr-xr-x 10 root root   77824 Oct 28  2025 app
+-rw-r--r--  1 root root     563 Oct 28  2025 app.json
+drwxr-xr-x  5 root root   36864 Oct 28  2025 assets
+drwxr-xr-x  3 root root   16384 Oct 28  2025 components
+drwxr-xr-x  3 root root    8192 Oct 28  2025 contexts
+-rw-r--r--  1 root root     110 Oct 28  2025 expo-env.d.ts
+drwxr-xr-x  3 root root    8192 Oct 28  2025 hooks
+drwxr-xr-x  4 root root   16384 Oct 28  2025 lib
+-rw-r--r--  1 root root  336584 Oct 28  2025 package-lock.json
+-rw-r--r--  1 root root    1463 Oct 28  2025 package.json
+drwxr-xr-x  9 root root   40960 Oct 28  2025 supabase
+-rw-r--r--  1 root root     253 Oct 28  2025 tsconfig.json
+drwxr-xr-x  3 root root  471040 Oct 28 10:36 uploads
+$ npm install
+
+npm ERR! code ECONNRESET
+npm ERR! network aborted
+npm ERR! network This is a problem related to network connectivity.
+npm ERR! network In most cases you are behind a proxy or have bad network settings.
+npm ERR! network 
+npm ERR! network If you are behind a proxy, please make sure that the
+npm ERR! network 'proxy' config is set properly.  See: 'npm help config'
+
+npm ERR! A complete log of this run can be found in: /root/.npm/_logs/2025-10-28T17_40_28_198Z-debug-0.log
+$ pnpm install
+
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 16, reused 0, downloaded 2, added 0
+Progress: resolved 27, reused 0, downloaded 7, added 0
+
+   ╭───────────────────────────────────────────────╮
+   │                                               │
+   │     Update available! 10.17.0 → 10.20.0.      │
+   │     Changelog: https://pnpm.io/v/10.20.0      │
+   │   To update, run: corepack use pnpm@10.20.0   │
+   │                                               │
+   ╰───────────────────────────────────────────────╯
+
+Progress: resolved 31, reused 1, downloaded 14, added 0
+Progress: resolved 34, reused 1, downloaded 16, added 0
+Progress: resolved 62, reused 18, downloaded 25, added 0
+Progress: resolved 83, reused 23, downloaded 31, added 0
+Progress: resolved 94, reused 23, downloaded 39, added 0
+Progress: resolved 104, reused 26, downloaded 47, added 0
+Progress: resolved 118, reused 27, downloaded 60, added 0
+Progress: resolved 139, reused 28, downloaded 78, added 0
+Progress: resolved 172, reused 46, downloaded 100, added 0
+Progress: resolved 200, reused 57, downloaded 110, added 0
+Progress: resolved 226, reused 59, downloaded 135, added 0
+Progress: resolved 251, reused 61, downloaded 157, added 0
+Progress: resolved 275, reused 65, downloaded 172, added 0
+Progress: resolved 307, reused 77, downloaded 200, added 0
+Progress: resolved 342, reused 85, downloaded 221, added 0
+Progress: resolved 378, reused 102, downloaded 248, added 0
+Progress: resolved 430, reused 111, downloaded 275, added 0
+Progress: resolved 475, reused 117, downloaded 316, added 0
+Progress: resolved 520, reused 130, downloaded 347, added 0
+Progress: resolved 560, reused 142, downloaded 374, added 0
+Progress: resolved 608, reused 149, downloaded 408, added 0
+Progress: resolved 652, reused 160, downloaded 452, added 0
+Progress: resolved 687, reused 169, downloaded 492, added 0
+ WARN  3 deprecated subdependencies found: glob@7.2.3, inflight@1.0.6, rimraf@3.0.2
+Progress: resolved 695, reused 175, downloaded 499, added 0
+Packages: +687
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 695, reused 175, downloaded 501, added 0
+Progress: resolved 695, reused 175, downloaded 504, added 0
+Progress: resolved 695, reused 175, downloaded 505, added 0
+Progress: resolved 695, reused 175, downloaded 507, added 0
+Progress: resolved 695, reused 175, downloaded 508, added 0
+Progress: resolved 695, reused 175, downloaded 509, added 14
+Progress: resolved 695, reused 175, downloaded 509, added 33
+Progress: resolved 695, reused 175, downloaded 509, added 39
+Progress: resolved 695, reused 175, downloaded 509, added 41
+Progress: resolved 695, reused 175, downloaded 509, added 49
+Progress: resolved 695, reused 175, downloaded 509, added 52
+Progress: resolved 695, reused 175, downloaded 509, added 69
+Progress: resolved 695, reused 175, downloaded 509, added 73
+Progress: resolved 695, reused 175, downloaded 509, added 80
+Progress: resolved 695, reused 175, downloaded 509, added 83
+Progress: resolved 695, reused 175, downloaded 509, added 90
+Progress: resolved 695, reused 175, downloaded 509, added 151
+Progress: resolved 695, reused 175, downloaded 509, added 183
+Progress: resolved 695, reused 175, downloaded 509, added 256
+Progress: resolved 695, reused 175, downloaded 509, added 264
+Progress: resolved 695, reused 175, downloaded 510, added 290
+Progress: resolved 695, reused 175, downloaded 510, added 306
+Progress: resolved 695, reused 175, downloaded 510, added 342
+Progress: resolved 695, reused 175, downloaded 510, added 366
+Progress: resolved 695, reused 175, downloaded 510, added 401
+Progress: resolved 695, reused 175, downloaded 510, added 439
+Progress: resolved 695, reused 175, downloaded 510, added 454
+Progress: resolved 695, reused 175, downloaded 510, added 458
+Progress: resolved 695, reused 175, downloaded 510, added 470
+Progress: resolved 695, reused 175, downloaded 510, added 473
+Progress: resolved 695, reused 175, downloaded 510, added 475
+Progress: resolved 695, reused 175, downloaded 510, added 487
+Progress: resolved 695, reused 175, downloaded 511, added 580
+Progress: resolved 695, reused 175, downloaded 511, added 629
+Progress: resolved 695, reused 175, downloaded 511, added 647
+Progress: resolved 695, reused 175, downloaded 511, added 650
+Progress: resolved 695, reused 175, downloaded 511, added 651
+Progress: resolved 695, reused 175, downloaded 511, added 652
+Progress: resolved 695, reused 175, downloaded 511, added 653
+Progress: resolved 695, reused 175, downloaded 511, added 654
+Progress: resolved 695, reused 175, downloaded 511, added 661
+Progress: resolved 695, reused 175, downloaded 511, added 677
+Progress: resolved 695, reused 175, downloaded 511, added 683
+Progress: resolved 695, reused 175, downloaded 511, added 684
+Progress: resolved 695, reused 175, downloaded 511, added 685
+Progress: resolved 695, reused 175, downloaded 511, added 686
+Progress: resolved 695, reused 175, downloaded 511, added 687
+Progress: resolved 695, reused 175, downloaded 511, added 687, done
+ WARN  Issues with peer dependencies found
+.
+└─┬ lucide-react-native 0.475.0
+  └── ✕ unmet peer react@"^16.5.1 || ^17.0.0 || ^18.0.0": found 19.0.0
+
+dependencies:
++ @expo/vector-icons 14.1.0 (15.0.3 is available)
++ @lucide/lab 0.1.2
++ @react-navigation/bottom-tabs 7.7.0
++ @react-navigation/native 7.1.19
++ @supabase/supabase-js 2.76.1
++ expo 53.0.23 (54.0.20 is available)
++ expo-blur 14.1.5 (15.0.7 is available)
++ expo-camera 16.1.11 (17.0.8 is available)
++ expo-constants 17.1.7 (18.0.10 is available)
++ expo-font 13.2.2 (14.0.9 is available)
++ expo-haptics 14.1.4 (15.0.7 is available)
++ expo-linear-gradient 14.1.5 (15.0.7 is available)
++ expo-linking 7.1.7 (8.0.8 is available)
++ expo-router 5.0.7 (6.0.13 is available)
++ expo-splash-screen 0.30.10 (31.0.10 is available)
++ expo-status-bar 2.2.3 (3.0.8 is available)
++ expo-symbols 0.4.5 (1.0.7 is available)
++ expo-system-ui 5.0.11 (6.0.8 is available)
++ expo-web-browser 14.1.6 (15.0.8 is available)
++ lucide-react-native 0.475.0 (0.548.0 is available)
++ react 19.0.0 (19.2.0 is available)
++ react-dom 19.0.0 (19.2.0 is available)
++ react-native 0.79.1 (0.82.1 is available)
++ react-native-gesture-handler 2.24.0 (2.29.0 is available)
++ react-native-reanimated 3.17.5 (4.1.3 is available)
++ react-native-safe-area-context 5.3.0 (5.6.1 is available)
++ react-native-screens 4.10.0 (4.18.0 is available)
++ react-native-svg 15.11.2 (15.14.0 is available)
++ react-native-url-polyfill 2.0.0 (3.0.0 is available)
++ react-native-web 0.20.0 (0.21.2 is available)
++ react-native-webview 13.13.5 (13.16.0 is available)
+
+devDependencies:
++ @babel/core 7.28.5
++ @types/react 19.0.14 (19.2.2 is available)
++ typescript 5.8.3 (5.9.3 is available)
+
+Done in 1m 33.1s using pnpm v10.17.0

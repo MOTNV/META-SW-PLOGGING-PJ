@@ -1,0 +1,10 @@
+$ ls -la supabase/migrations/
+total 99
+drwxr-xr-x 8 root root 36864 Oct 28  2025 .
+drwxr-xr-x 9 root root 40960 Oct 28  2025 ..
+-rw-r--r-- 1 root root  2828 Oct 28  2025 20250923134812_morning_water.sql
+-rw-r--r-- 1 root root  3489 Oct 28  2025 20250923134824_icy_credit.sql
+-rw-r--r-- 1 root root  5414 Oct 28  2025 20250923134835_ivory_shore.sql
+-rw-r--r-- 1 root root  3479 Oct 28  2025 20250923134855_orange_snow.sql
+-rw-r--r-- 1 root root  4147 Oct 28  2025 20250923134907_holy_plain.sql
+-rw-r--r-- 1 root root  2513 Oct 28  2025 20251028171042_create_auth_tables.sql

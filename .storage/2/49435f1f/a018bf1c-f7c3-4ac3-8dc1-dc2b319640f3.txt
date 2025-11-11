@@ -1,0 +1,48 @@
+$ find /workspace -type f -name "*.zip" -o -name "*.py" -o -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" -o -name "*.md" | head -20
+/workspace/.MGXEnv.json
+/workspace/.wiki.md
+/workspace/uploads/sb1-tkvgd6x9.zip
+$ cd /workspace && unzip -o uploads/sb1-tkvgd6x9.zip
+
+Archive:  uploads/sb1-tkvgd6x9.zip
+   creating: app/
+   creating: lib/
+ extracting: .env                    
+   creating: .bolt/
+   creating: hooks/
+ extracting: .npmrc                  
+   creating: assets/
+ extracting: app.json                
+   creating: contexts/
+   creating: supabase/
+ extracting: .gitignore              
+   creating: app/(tabs)/
+   creating: components/
+ extracting: .prettierrc             
+ extracting: package.json            
+   creating: assets/images/
+ extracting: tsconfig.json           
+ extracting: app/_layout.tsx         
+ extracting: lib/database.ts         
+ extracting: lib/supabase.ts         
+ extracting: .bolt/config.json       
+ extracting: package-lock.json       
+ extracting: app/(tabs)/run.tsx      
+ extracting: app/+not-found.tsx      
+   creating: supabase/migrations/
+ extracting: app/(tabs)/index.tsx    
+ extracting: app/(tabs)/_layout.tsx  
+ extracting: app/(tabs)/history.tsx  
+ extracting: app/(tabs)/profile.tsx  
+ extracting: assets/images/icon.png  
+ extracting: components/AuthModal.tsx  
+ extracting: contexts/AuthContext.tsx  
+ extracting: assets/images/favicon.png  
+ extracting: hooks/useFrameworkReady.ts  
+ extracting: supabase/migrations/20250923134824_icy_credit.sql  
+ extracting: supabase/migrations/20250923134907_holy_plain.sql  
+ extracting: supabase/migrations/20250923134835_ivory_shore.sql  
+ extracting: supabase/migrations/20250923134855_orange_snow.sql  
+ extracting: supabase/migrations/20250923134812_morning_water.sql  
+ extracting: supabase/migrations/20251028171042_create_auth_tables.sql  
+ extracting: expo-env.d.ts           

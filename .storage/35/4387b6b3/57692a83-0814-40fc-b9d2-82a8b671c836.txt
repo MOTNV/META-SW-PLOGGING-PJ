@@ -1,0 +1,108 @@
+$ ls -la supabase/migrations/
+total 99
+drwxr-xr-x 8 root root 36864 Oct 28  2025 .
+drwxr-xr-x 9 root root 40960 Oct 28  2025 ..
+-rw-r--r-- 1 root root  2828 Oct 28  2025 20250923134812_morning_water.sql
+-rw-r--r-- 1 root root  3489 Oct 28  2025 20250923134824_icy_credit.sql
+-rw-r--r-- 1 root root  5414 Oct 28  2025 20250923134835_ivory_shore.sql
+-rw-r--r-- 1 root root  3479 Oct 28  2025 20250923134855_orange_snow.sql
+-rw-r--r-- 1 root root  4147 Oct 28  2025 20250923134907_holy_plain.sql
+-rw-r--r-- 1 root root  2513 Oct 28  2025 20251028171042_create_auth_tables.sql
+$ pnpm run build:web
+
+
+> bolt-expo-starter@1.0.0 build:web /workspace
+> expo export --platform web
+
+env: load .env
+env: export EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY
+Starting Metro Bundler
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓░░░░░░░░░░░░░░ 16.0% (4/9)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% (20/40)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% (32/71)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% ( 65/160)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% ( 92/188)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% (115/213)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% (148/247)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 46.5% (188/305)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 47.6% (240/348)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 56.7% (280/372)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.2% (313/435)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.2% (345/458)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.9% (390/487)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.2% (438/516)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.4% (487/597)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 79.8% (553/619)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 85.1% (607/658)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91.6% (666/696)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.6% (705/710)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.4% (713/715)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% ( 819/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% ( 959/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1106/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1275/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1454/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1614/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1811/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1980/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (2136/2274)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2280/2284)
+Web Bundled 106803ms node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js (2298 modules)
+
+› Assets (17):
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.0a328cd9c1afd0afe8e3b1ec5165b1b4.png (653 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/back-icon.35ba0eaec5a4f5ed12ca16fabeae451d.png (207 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/clear-icon.c94f6478e7ae0cdd9f15de1fcb9e5e55.png (4 variations | 425 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/close-icon.808e1b1b9b53114ec2838071a7e6daa7.png (4 variations | 235 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/search-icon.286d67d3f74808a60a78d3ebf1a5fb57.png (928 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/error.d1ea1496f9057eb392d5bbf3732a61b7.png (469 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/file.19eeb73b9593a38f8e9f418337fc7d10.png (138 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/forward.d8b800c443b8972542883e0b9de2bdc6.png (188 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/pkg.ab19f4cbc543357183a20571f68380a3.png (364 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/sitemap.412dd9275b6b48ad28f5e3d81bb1f626.png (465 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/unmatched.20e71bdf79e3a97bf55fd9e164041578.png (4.75 kB)
+
+› web bundles (1):
+_expo/static/js/web/entry-f33fa0bfc5393b2a6b120d1a87b77292.js (2.93 MB)
+
+› Files (3):
+favicon.ico (14.5 kB)
+index.html (1.23 kB)
+metadata.json (49 B)
+
+Exported: dist
+$ pnpm run build:web
+
+
+> bolt-expo-starter@1.0.0 build:web /workspace
+> expo export --platform web
+
+env: load .env
+env: export EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY
+Starting Metro Bundler
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.3% (590/598)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.8% (2297/2299)
+Web Bundled 4998ms node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js (2299 modules)
+
+› Assets (17):
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.0a328cd9c1afd0afe8e3b1ec5165b1b4.png (653 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/back-icon.35ba0eaec5a4f5ed12ca16fabeae451d.png (207 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/clear-icon.c94f6478e7ae0cdd9f15de1fcb9e5e55.png (4 variations | 425 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/close-icon.808e1b1b9b53114ec2838071a7e6daa7.png (4 variations | 235 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/search-icon.286d67d3f74808a60a78d3ebf1a5fb57.png (928 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/error.d1ea1496f9057eb392d5bbf3732a61b7.png (469 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/file.19eeb73b9593a38f8e9f418337fc7d10.png (138 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/forward.d8b800c443b8972542883e0b9de2bdc6.png (188 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/pkg.ab19f4cbc543357183a20571f68380a3.png (364 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/sitemap.412dd9275b6b48ad28f5e3d81bb1f626.png (465 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/unmatched.20e71bdf79e3a97bf55fd9e164041578.png (4.75 kB)
+
+› web bundles (1):
+_expo/static/js/web/entry-d15d36bb0443918c9e3f14e2b2f33a74.js (2.92 MB)
+
+› Files (3):
+favicon.ico (14.5 kB)
+index.html (1.23 kB)
+metadata.json (49 B)
+
+Exported: dist

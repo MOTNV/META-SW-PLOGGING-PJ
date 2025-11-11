@@ -1,0 +1,4 @@
+$ find /workspace -type f -name "*.zip" -o -name "*.py" -o -name "*.js" -o -name "*.html" -o -name "*.css" -o -name "*.json" -o -name "*.md" | head -20
+/workspace/.MGXEnv.json
+/workspace/.wiki.md
+/workspace/uploads/sb1-tkvgd6x9.zip

@@ -1,0 +1,256 @@
+$ pnpm run lint && pnpm run build
+
+> bolt-expo-starter@1.0.0 lint /workspace
+> expo lint
+
+env: load .env
+env: export EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY
+No ESLint config found. Configuring automatically.
+ESLint is required to lint your project. Installing eslint@^9.0.0,
+eslint-config-expo@~9.2.0
+
+- Installing eslint@^9.0.0, eslint-config-expo@~9.2.0
+› Installing 2 other packages using npm
+- Installing eslint@^9.0.0, eslint-config-expo@~9.2.0
+› Using ~9.2.0 instead of ~9.2.0 for eslint-config-expo because this version was explicitly provided. Packages excluded from dependency validation should be listed in expo.install.exclude in package.json. Learn more: https://docs.expo.dev/more/expo-cli/#configuring-dependency-validation
+- Installing eslint@^9.0.0, eslint-config-expo@~9.2.0
+> npm install
+- Installing eslint@^9.0.0, eslint-config-expo@~9.2.0
+npm WARN EBADENGINE Unsupported engine {
+npm WARN EBADENGINE   package: 'react-native-maps@1.26.18',
+npm WARN EBADENGINE   required: { node: '>= 20.19.4' },
+npm WARN EBADENGINE   current: { node: 'v20.11.0', npm: '10.2.4' }
+npm WARN EBADENGINE }
+npm WARN deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm WARN deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+
+added 937 packages, changed 36 packages, and audited 974 packages in 2m
+
+185 packages are looking for funding
+  run `npm fund` for details
+
+6 vulnerabilities (4 low, 2 moderate)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+npm notice 
+npm notice New major version of npm available! 10.2.4 -> 11.6.2
+npm notice Changelog: <https://github.com/npm/cli/releases/tag/v11.6.2>
+npm notice Run `npm install -g npm@11.6.2` to update!
+npm notice 
+✔ Installed eslint@^9.0.0, eslint-config-expo@~9.2.0
+
+ESLint has been configured 🎉
+
+Error: Cannot find module 'eslint'
+Require stack:
+- /workspace/node_modules/.pnpm/@expo+cli@0.24.22/node_modules/@expo/cli/build/src/lint/lintAsync.js
+- /workspace/node_modules/.pnpm/@expo+cli@0.24.22/node_modules/@expo/cli/build/src/lint/index.js
+- /workspace/node_modules/.pnpm/@expo+cli@0.24.22/node_modules/@expo/cli/build/bin/cli
+- /workspace/node_modules/.pnpm/expo@53.0.23_@babel+core@7.28.5_@expo+metro-runtime@5.0.4_react-native@0.79.1_@babel+co_d5b41b29397d9ff0e1a948fa8a0eac7e/node_modules/expo/bin/cli
+Error: Cannot find module 'eslint'
+Require stack:
+- /workspace/node_modules/.pnpm/@expo+cli@0.24.22/node_modules/@expo/cli/build/src/lint/lintAsync.js
+- /workspace/node_modules/.pnpm/@expo+cli@0.24.22/node_modules/@expo/cli/build/src/lint/index.js
+- /workspace/node_modules/.pnpm/@expo+cli@0.24.22/node_modules/@expo/cli/build/bin/cli
+- /workspace/node_modules/.pnpm/expo@53.0.23_@babel+core@7.28.5_@expo+metro-runtime@5.0.4_react-native@0.79.1_@babel+co_d5b41b29397d9ff0e1a948fa8a0eac7e/node_modules/expo/bin/cli
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1144:15)
+    at Module._load (node:internal/modules/cjs/loader:985:27)
+    at Module.require (node:internal/modules/cjs/loader:1235:19)
+    at require (node:internal/modules/helpers:176:18)
+    at lintAsync (/workspace/node_modules/.pnpm/@expo+cli@0.24.22/node_modules/@expo/cli/build/src/lint/lintAsync.js:106:28)
+ ELIFECYCLE  Command failed with exit code 1.
+$ pnpm add -D eslint eslint-config-expo
+
+ WARN  Moving @babel/core that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @types/react that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving eslint that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving eslint-config-expo that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving typescript that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @expo/vector-icons that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @lucide/lab that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @react-navigation/bottom-tabs that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @react-navigation/native that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving @supabase/supabase-js that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-blur that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-camera that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-constants that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-font that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-haptics that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-linear-gradient that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-linking that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-location that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-router that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-splash-screen that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-status-bar that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-symbols that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-system-ui that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving expo-web-browser that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving lucide-react-native that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-dom that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-gesture-handler that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-maps that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-reanimated that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-safe-area-context that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-screens that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-svg that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-url-polyfill that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-web that was installed by a different package manager to "node_modules/.ignored"
+ WARN  Moving react-native-webview that was installed by a different package manager to "node_modules/.ignored"
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 2, reused 0, downloaded 0, added 0
+Progress: resolved 11, reused 9, downloaded 0, added 0
+Progress: resolved 129, reused 128, downloaded 1, added 0
+Progress: resolved 714, reused 700, downloaded 4, added 0
+Progress: resolved 758, reused 738, downloaded 8, added 0
+Progress: resolved 788, reused 742, downloaded 17, added 0
+Progress: resolved 829, reused 750, downloaded 41, added 0
+Progress: resolved 856, reused 754, downloaded 62, added 0
+Progress: resolved 893, reused 756, downloaded 94, added 0
+Progress: resolved 912, reused 759, downloaded 126, added 0
+Progress: resolved 927, reused 774, downloaded 126, added 0
+ WARN  3 deprecated subdependencies found: glob@7.2.3, inflight@1.0.6, rimraf@3.0.2
+Packages: +207
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 927, reused 774, downloaded 127, added 0
+Progress: resolved 927, reused 774, downloaded 127, added 10
+Progress: resolved 927, reused 774, downloaded 127, added 54
+Progress: resolved 927, reused 774, downloaded 127, added 84
+Progress: resolved 927, reused 774, downloaded 127, added 111
+Progress: resolved 927, reused 774, downloaded 127, added 170
+Progress: resolved 927, reused 774, downloaded 127, added 196
+Progress: resolved 927, reused 774, downloaded 127, added 205
+Progress: resolved 927, reused 774, downloaded 127, added 206
+Progress: resolved 927, reused 774, downloaded 127, added 207
+Progress: resolved 927, reused 774, downloaded 127, added 207, done
+ WARN  Issues with peer dependencies found
+.
+└─┬ lucide-react-native 0.475.0
+  └── ✕ unmet peer react@"^16.5.1 || ^17.0.0 || ^18.0.0": found 19.0.0
+
+dependencies:
++ @expo/vector-icons 14.1.0
++ @lucide/lab 0.1.2
++ @react-navigation/bottom-tabs 7.7.0
++ @react-navigation/native 7.1.19
++ @supabase/supabase-js 2.76.1
++ expo 53.0.23
++ expo-blur 14.1.5
++ expo-camera 16.1.11
++ expo-constants 17.1.7
++ expo-font 13.2.2
++ expo-haptics 14.1.4
++ expo-linear-gradient 14.1.5
++ expo-linking 7.1.7
++ expo-location 19.0.7
++ expo-router 5.0.7
++ expo-splash-screen 0.30.10
++ expo-status-bar 2.2.3
++ expo-symbols 0.4.5
++ expo-system-ui 5.0.11
++ expo-web-browser 14.1.6
++ lucide-react-native 0.475.0
++ react 19.0.0
++ react-dom 19.0.0
++ react-native 0.79.1
++ react-native-gesture-handler 2.24.0
++ react-native-maps 1.26.18
++ react-native-reanimated 3.17.5
++ react-native-safe-area-context 5.3.0
++ react-native-screens 4.10.0
++ react-native-svg 15.11.2
++ react-native-url-polyfill 2.0.0
++ react-native-web 0.20.0
++ react-native-webview 13.13.5
+
+devDependencies:
++ @babel/core 7.28.5
++ @types/react 19.0.14
++ eslint 9.38.0
++ eslint-config-expo 9.2.0 (10.0.0 is available)
++ typescript 5.8.3
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: unrs-resolver.                                      │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 27.4s using pnpm v10.17.0
+$ pnpm run build
+
+ ERR_PNPM_NO_SCRIPT  Missing script: build
+
+Command "build" not found. Did you mean "pnpm run build:web"?
+$ pnpm run build:web
+
+
+> bolt-expo-starter@1.0.0 build:web /workspace
+> expo export --platform web
+
+env: load .env
+env: export EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY
+Starting Metro Bundler
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.0% (11/19)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.9% (30/49)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.9% ( 62/144)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.9% ( 93/178)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.9% (118/204)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.9% (154/244)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.9% (198/293)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 59.9% (243/314)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.7% (283/399)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.7% (309/438)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 61.7% (355/474)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 63.7% (399/506)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 69.2% (468/567)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 80.9% (528/587)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 87.1% (586/631)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.4% (644/685)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.4% (687/707)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.2% (721/724)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% ( 727/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% ( 888/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1071/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1264/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1440/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1635/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (1863/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2095/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2278/2285)
+Web node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2304/2308)
+Web Bundled 98877ms node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/entry.js (2308 modules)
+
+› Assets (17):
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.0a328cd9c1afd0afe8e3b1ec5165b1b4.png (653 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/back-icon.35ba0eaec5a4f5ed12ca16fabeae451d.png (207 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/clear-icon.c94f6478e7ae0cdd9f15de1fcb9e5e55.png (4 variations | 425 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/close-icon.808e1b1b9b53114ec2838071a7e6daa7.png (4 variations | 235 B)
+node_modules/.pnpm/@react-navigation+elements@2.8.0_@react-navigation+native@7.1.19_react-native@0.79.1_@b_79cc1fde74f95389480074df02688b42/node_modules/@react-navigation/elements/lib/module/assets/search-icon.286d67d3f74808a60a78d3ebf1a5fb57.png (928 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/error.d1ea1496f9057eb392d5bbf3732a61b7.png (469 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/file.19eeb73b9593a38f8e9f418337fc7d10.png (138 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/forward.d8b800c443b8972542883e0b9de2bdc6.png (188 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/pkg.ab19f4cbc543357183a20571f68380a3.png (364 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/sitemap.412dd9275b6b48ad28f5e3d81bb1f626.png (465 B)
+node_modules/.pnpm/expo-router@5.0.7_43a126529f2fc417e748be3bb2b28d22/node_modules/expo-router/assets/unmatched.20e71bdf79e3a97bf55fd9e164041578.png (4.75 kB)
+
+› web bundles (1):
+_expo/static/js/web/entry-2b034ff8ca9287fbd55d897b7b8e571f.js (2.94 MB)
+
+› Files (3):
+favicon.ico (14.5 kB)
+index.html (1.23 kB)
+metadata.json (49 B)
+
+Exported: dist

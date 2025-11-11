@@ -1,0 +1,22 @@
+$ pnpm add expo-location react-native-maps
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 2, reused 0, downloaded 0, added 0
+Progress: resolved 2, reused 1, downloaded 0, added 0
+Progress: resolved 34, reused 32, downloaded 0, added 0
+Progress: resolved 268, reused 265, downloaded 1, added 0
+Progress: resolved 688, reused 677, downloaded 2, added 0
+ WARN  3 deprecated subdependencies found: glob@7.2.3, inflight@1.0.6, rimraf@3.0.2
+Packages: +3
++++
+Progress: resolved 698, reused 686, downloaded 3, added 1
+Progress: resolved 698, reused 686, downloaded 3, added 3, done
+ WARN  Issues with peer dependencies found
+.
+└─┬ lucide-react-native 0.475.0
+  └── ✕ unmet peer react@"^16.5.1 || ^17.0.0 || ^18.0.0": found 19.0.0
+
+dependencies:
++ expo-location 19.0.7
++ react-native-maps 1.26.18
+
+Done in 8.6s using pnpm v10.17.0
