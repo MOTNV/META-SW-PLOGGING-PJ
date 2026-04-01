@@ -1,0 +1,1945 @@
+[
+  {
+    "imagePath": "KakaoTalk_20260331_193843538.jpg",
+    "latitude": 35.94736944444444,
+    "longitude": 126.68009166666667,
+    "timestamp": "2026-03-31T19:19:35",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_01.jpg",
+    "latitude": 35.947802777777774,
+    "longitude": 126.68003888888889,
+    "timestamp": "2026-03-31T19:17:41",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_02.jpg",
+    "latitude": 35.948502777777776,
+    "longitude": 126.67979444444445,
+    "timestamp": "2026-03-31T19:15:54",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 20
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_03.jpg",
+    "latitude": 35.94850555555555,
+    "longitude": 126.67977222222223,
+    "timestamp": "2026-03-31T19:15:45",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 20
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_04.jpg",
+    "latitude": 35.94852777777778,
+    "longitude": 126.68058888888889,
+    "timestamp": "2026-03-31T19:14:49",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_05.jpg",
+    "latitude": 35.948563888888884,
+    "longitude": 126.68093055555556,
+    "timestamp": "2026-03-31T19:14:28",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 30
+      },
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 4
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_06.jpg",
+    "latitude": 35.94981111111111,
+    "longitude": 126.67978611111111,
+    "timestamp": "2026-03-31T19:11:35",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_07.jpg",
+    "latitude": 35.94963055555555,
+    "longitude": 126.67957222222223,
+    "timestamp": "2026-03-31T19:10:59",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_08.jpg",
+    "latitude": 35.94976944444444,
+    "longitude": 126.67949722222222,
+    "timestamp": "2026-03-31T19:10:37",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_09.jpg",
+    "latitude": 35.94982777777778,
+    "longitude": 126.67953611111112,
+    "timestamp": "2026-03-31T19:10:30",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 3
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_10.jpg",
+    "latitude": 35.94983333333333,
+    "longitude": 126.67955,
+    "timestamp": "2026-03-31T19:10:26",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_11.jpg",
+    "latitude": 35.94983333333333,
+    "longitude": 126.67956666666667,
+    "timestamp": "2026-03-31T19:10:20",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_12.jpg",
+    "latitude": 35.94989722222222,
+    "longitude": 126.67958055555556,
+    "timestamp": "2026-03-31T19:10:12",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_13.jpg",
+    "latitude": 35.94991944444444,
+    "longitude": 126.67959722222223,
+    "timestamp": "2026-03-31T19:10:06",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_14.jpg",
+    "latitude": 35.94994722222222,
+    "longitude": 126.67962777777778,
+    "timestamp": "2026-03-31T19:10:01",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_15.jpg",
+    "latitude": 35.94996388888889,
+    "longitude": 126.67963333333334,
+    "timestamp": "2026-03-31T19:09:56",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_16.jpg",
+    "latitude": 35.949974999999995,
+    "longitude": 126.67965833333334,
+    "timestamp": "2026-03-31T19:09:50",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_17.jpg",
+    "latitude": 35.950005555555556,
+    "longitude": 126.6796638888889,
+    "timestamp": "2026-03-31T19:09:44",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_18.jpg",
+    "latitude": 35.95000833333334,
+    "longitude": 126.67968055555556,
+    "timestamp": "2026-03-31T19:09:42",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 7
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_19.jpg",
+    "latitude": 35.95004166666667,
+    "longitude": 126.67971666666668,
+    "timestamp": "2026-03-31T19:09:35",
+    "items": [
+      {
+        "label": "유리류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_20.jpg",
+    "latitude": 35.950072222222225,
+    "longitude": 126.67975555555556,
+    "timestamp": "2026-03-31T19:09:29",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 5
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_21.jpg",
+    "latitude": 35.95007777777778,
+    "longitude": 126.6797638888889,
+    "timestamp": "2026-03-31T19:09:27",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 3
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_22.jpg",
+    "latitude": 35.95008888888889,
+    "longitude": 126.6797638888889,
+    "timestamp": "2026-03-31T19:09:26",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_23.jpg",
+    "latitude": 35.95009166666667,
+    "longitude": 126.6797638888889,
+    "timestamp": "2026-03-31T19:09:23",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "medium",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_24.jpg",
+    "latitude": 35.95010833333333,
+    "longitude": 126.67979444444445,
+    "timestamp": "2026-03-31T19:09:19",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "medium",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_25.jpg",
+    "latitude": 35.95011111111111,
+    "longitude": 126.67980277777778,
+    "timestamp": "2026-03-31T19:09:14",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "large",
+        "quantity": 1
+      },
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_26.jpg",
+    "latitude": 35.95011111111111,
+    "longitude": 126.67980277777778,
+    "timestamp": "2026-03-31T19:09:12",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 1
+      },
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_27.jpg",
+    "latitude": 35.95010277777778,
+    "longitude": 126.67980833333334,
+    "timestamp": "2026-03-31T19:09:08",
+    "items": [
+      {
+        "label": "스티로폼",
+        "size": "medium",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_28.jpg",
+    "latitude": 35.95008888888889,
+    "longitude": 126.67982500000001,
+    "timestamp": "2026-03-31T19:09:04",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "플라스틱류",
+        "size": "medium",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193843538_29.jpg",
+    "latitude": 35.95008888888889,
+    "longitude": 126.67981666666667,
+    "timestamp": "2026-03-31T19:09:00",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 1
+      },
+      {
+        "label": "스티로폼",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076.jpg",
+    "latitude": 35.950097222222226,
+    "longitude": 126.67986388888889,
+    "timestamp": "2026-03-31T19:08:54",
+    "items": [
+      {
+        "label": "스티로폼",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_01.jpg",
+    "latitude": 35.950072222222225,
+    "longitude": 126.67991666666667,
+    "timestamp": "2026-03-31T19:08:45",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_02.jpg",
+    "latitude": 35.950072222222225,
+    "longitude": 126.67991666666667,
+    "timestamp": "2026-03-31T19:08:43",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_03.jpg",
+    "latitude": 35.95006666666667,
+    "longitude": 126.6799388888889,
+    "timestamp": "2026-03-31T19:08:40",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_04.jpg",
+    "latitude": 35.95008055555556,
+    "longitude": 126.6799388888889,
+    "timestamp": "2026-03-31T19:08:38",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_05.jpg",
+    "latitude": 35.950069444444445,
+    "longitude": 126.67999166666667,
+    "timestamp": "2026-03-31T19:08:30",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_06.jpg",
+    "latitude": 35.95011944444445,
+    "longitude": 126.68006111111112,
+    "timestamp": "2026-03-31T19:08:25",
+    "items": [
+      {
+        "label": "캔/금속류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_07.jpg",
+    "latitude": 35.949691666666666,
+    "longitude": 126.68061111111112,
+    "timestamp": "2026-03-31T19:06:58",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_08.jpg",
+    "latitude": 35.9497,
+    "longitude": 126.68058888888889,
+    "timestamp": "2026-03-31T19:06:56",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_09.jpg",
+    "latitude": 35.9497,
+    "longitude": 126.68058888888889,
+    "timestamp": "2026-03-31T19:06:54",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_10.jpg",
+    "latitude": 35.94971111111111,
+    "longitude": 126.68051944444444,
+    "timestamp": "2026-03-31T19:06:47",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_11.jpg",
+    "latitude": 35.94970833333333,
+    "longitude": 126.68051111111112,
+    "timestamp": "2026-03-31T19:06:45",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_12.jpg",
+    "latitude": 35.94971111111111,
+    "longitude": 126.68048888888889,
+    "timestamp": "2026-03-31T19:06:43",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_13.jpg",
+    "latitude": 35.94971111111111,
+    "longitude": 126.68046666666667,
+    "timestamp": "2026-03-31T19:06:39",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "스티로폼",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_14.jpg",
+    "latitude": 35.94971111111111,
+    "longitude": 126.68045833333333,
+    "timestamp": "2026-03-31T19:06:37",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_15.jpg",
+    "latitude": 35.94970833333333,
+    "longitude": 126.68041944444445,
+    "timestamp": "2026-03-31T19:06:33",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_16.jpg",
+    "latitude": 35.94970833333333,
+    "longitude": 126.68038055555556,
+    "timestamp": "2026-03-31T19:06:29",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_17.jpg",
+    "latitude": 35.94971111111111,
+    "longitude": 126.68033611111112,
+    "timestamp": "2026-03-31T19:06:24",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_18.jpg",
+    "latitude": 35.949663888888885,
+    "longitude": 126.67982500000001,
+    "timestamp": "2026-03-31T19:05:41",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_19.jpg",
+    "latitude": 35.94968055555555,
+    "longitude": 126.67980833333334,
+    "timestamp": "2026-03-31T19:05:37",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "medium",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_20.jpg",
+    "latitude": 35.94970833333333,
+    "longitude": 126.67985555555556,
+    "timestamp": "2026-03-31T19:05:23",
+    "items": [
+      {
+        "label": "스티로폼",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_21.jpg",
+    "latitude": 35.94971111111111,
+    "longitude": 126.67981666666667,
+    "timestamp": "2026-03-31T19:05:28",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_22.jpg",
+    "latitude": 35.94971388888889,
+    "longitude": 126.67981666666667,
+    "timestamp": "2026-03-31T19:05:31",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_23.jpg",
+    "latitude": 35.94970277777777,
+    "longitude": 126.67986944444445,
+    "timestamp": "2026-03-31T19:05:20",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_24.jpg",
+    "latitude": 35.94969444444444,
+    "longitude": 126.67991666666667,
+    "timestamp": "2026-03-31T19:05:15",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      },
+      {
+        "label": "캔/금속류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_25.jpg",
+    "latitude": 35.949691666666666,
+    "longitude": 126.67997777777778,
+    "timestamp": "2026-03-31T19:05:09",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_26.jpg",
+    "latitude": 35.94969444444444,
+    "longitude": 126.68002222222222,
+    "timestamp": "2026-03-31T19:05:03",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_27.jpg",
+    "latitude": 35.9497,
+    "longitude": 126.68003888888889,
+    "timestamp": "2026-03-31T19:05:00",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_28.jpg",
+    "latitude": 35.949688888888886,
+    "longitude": 126.68006111111112,
+    "timestamp": "2026-03-31T19:04:57",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193903076_29.jpg",
+    "latitude": 35.949688888888886,
+    "longitude": 126.68006111111112,
+    "timestamp": "2026-03-31T19:04:56",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184.jpg",
+    "latitude": 35.9497,
+    "longitude": 126.68010833333334,
+    "timestamp": "2026-03-31T19:04:47",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_01.jpg",
+    "latitude": 35.94969444444444,
+    "longitude": 126.68012222222222,
+    "timestamp": "2026-03-31T19:04:43",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_02.jpg",
+    "latitude": 35.949691666666666,
+    "longitude": 126.68014444444445,
+    "timestamp": "2026-03-31T19:04:39",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_03.jpg",
+    "latitude": 35.949688888888886,
+    "longitude": 126.68019166666667,
+    "timestamp": "2026-03-31T19:04:35",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_04.jpg",
+    "latitude": 35.9497,
+    "longitude": 126.68023611111111,
+    "timestamp": "2026-03-31T19:04:31",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_05.jpg",
+    "latitude": 35.949688888888886,
+    "longitude": 126.68024444444445,
+    "timestamp": "2026-03-31T19:04:29",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_06.jpg",
+    "latitude": 35.949691666666666,
+    "longitude": 126.6802888888889,
+    "timestamp": "2026-03-31T19:04:23",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_07.jpg",
+    "latitude": 35.949688888888886,
+    "longitude": 126.6802888888889,
+    "timestamp": "2026-03-31T19:04:21",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_08.jpg",
+    "latitude": 35.94969444444444,
+    "longitude": 126.6802888888889,
+    "timestamp": "2026-03-31T19:04:20",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_09.jpg",
+    "latitude": 35.94971111111111,
+    "longitude": 126.6802888888889,
+    "timestamp": "2026-03-31T19:04:17",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_10.jpg",
+    "latitude": 35.949724999999994,
+    "longitude": 126.68028333333334,
+    "timestamp": "2026-03-31T19:04:14",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 4
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_11.jpg",
+    "latitude": 35.94973333333333,
+    "longitude": 126.6802888888889,
+    "timestamp": "2026-03-31T19:04:13",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 4
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_12.jpg",
+    "latitude": 35.94976944444444,
+    "longitude": 126.6802888888889,
+    "timestamp": "2026-03-31T19:04:06",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_13.jpg",
+    "latitude": 35.949774999999995,
+    "longitude": 126.68028333333334,
+    "timestamp": "2026-03-31T19:04:00",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_14.jpg",
+    "latitude": 35.949774999999995,
+    "longitude": 126.68026666666667,
+    "timestamp": "2026-03-31T19:03:58",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_15.jpg",
+    "latitude": 35.94978611111111,
+    "longitude": 126.68030555555556,
+    "timestamp": "2026-03-31T19:03:50",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_16.jpg",
+    "latitude": 35.94976944444444,
+    "longitude": 126.68034444444444,
+    "timestamp": "2026-03-31T19:03:45",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_17.jpg",
+    "latitude": 35.94972222222222,
+    "longitude": 126.68047222222222,
+    "timestamp": "2026-03-31T19:03:30",
+    "items": [
+      {
+        "label": "스티로폼",
+        "size": "large",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_18.jpg",
+    "latitude": 35.94947777777777,
+    "longitude": 126.68086944444445,
+    "timestamp": "2026-03-31T19:02:53",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_19.jpg",
+    "latitude": 35.94937777777778,
+    "longitude": 126.68090833333333,
+    "timestamp": "2026-03-31T19:02:42",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_20.jpg",
+    "latitude": 35.94924444444444,
+    "longitude": 126.68092222222222,
+    "timestamp": "2026-03-31T19:02:29",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_21.jpg",
+    "latitude": 35.94909166666666,
+    "longitude": 126.68111388888889,
+    "timestamp": "2026-03-31T19:02:02",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_22.jpg",
+    "latitude": 35.94828888888888,
+    "longitude": 126.68147222222223,
+    "timestamp": "2026-03-31T19:00:17",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_23.jpg",
+    "latitude": 35.94829166666666,
+    "longitude": 126.68145,
+    "timestamp": "2026-03-31T19:00:16",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 3
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_24.jpg",
+    "latitude": 35.94823333333333,
+    "longitude": 126.68147222222223,
+    "timestamp": "2026-03-31T19:00:09",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_25.jpg",
+    "latitude": 35.94819722222222,
+    "longitude": 126.68151111111112,
+    "timestamp": "2026-03-31T19:00:05",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_26.jpg",
+    "latitude": 35.94817222222222,
+    "longitude": 126.68152500000001,
+    "timestamp": "2026-03-31T19:00:01",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 7
+      },
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_27.jpg",
+    "latitude": 35.94815555555555,
+    "longitude": 126.68154166666667,
+    "timestamp": "2026-03-31T18:59:58",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 5
+      },
+      {
+        "label": "종이류",
+        "size": "small",
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_28.jpg",
+    "latitude": 35.948125,
+    "longitude": 126.68149444444445,
+    "timestamp": "2026-03-31T18:59:52",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_193928184_29.jpg",
+    "latitude": 35.948166666666665,
+    "longitude": 126.68147222222223,
+    "timestamp": "2026-03-31T18:59:46",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527.jpg",
+    "latitude": 35.94788333333333,
+    "longitude": 126.68240277777778,
+    "timestamp": "2026-03-31T18:51:04",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_01.jpg",
+    "latitude": 35.947849999999995,
+    "longitude": 126.68241944444445,
+    "timestamp": "2026-03-31T18:50:48",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_02.jpg",
+    "latitude": 35.94763611111111,
+    "longitude": 126.68243333333334,
+    "timestamp": "2026-03-31T18:50:24",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_03.jpg",
+    "latitude": 35.947536111111106,
+    "longitude": 126.68215277777779,
+    "timestamp": "2026-03-31T18:49:54",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_04.jpg",
+    "latitude": 35.94755555555555,
+    "longitude": 126.682175,
+    "timestamp": "2026-03-31T18:50:00",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_05.jpg",
+    "latitude": 35.94752222222222,
+    "longitude": 126.68215833333333,
+    "timestamp": "2026-03-31T18:49:50",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_06.jpg",
+    "latitude": 35.947511111111105,
+    "longitude": 126.68215277777779,
+    "timestamp": "2026-03-31T18:49:49",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_07.jpg",
+    "latitude": 35.947513888888885,
+    "longitude": 126.68215277777779,
+    "timestamp": "2026-03-31T18:49:48",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_08.jpg",
+    "latitude": 35.94748055555555,
+    "longitude": 126.68214444444445,
+    "timestamp": "2026-03-31T18:49:37",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_09.jpg",
+    "latitude": 35.94748055555555,
+    "longitude": 126.68214444444445,
+    "timestamp": "2026-03-31T18:49:36",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_10.jpg",
+    "latitude": 35.94746111111111,
+    "longitude": 126.68215277777779,
+    "timestamp": "2026-03-31T18:49:28",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_11.jpg",
+    "latitude": 35.94743055555555,
+    "longitude": 126.68215277777779,
+    "timestamp": "2026-03-31T18:49:22",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_12.jpg",
+    "latitude": 35.947380555555554,
+    "longitude": 126.68215833333333,
+    "timestamp": "2026-03-31T18:49:15",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_13.jpg",
+    "latitude": 35.946505555555554,
+    "longitude": 126.68215833333333,
+    "timestamp": "2026-03-31T18:47:48",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_14.jpg",
+    "latitude": 35.946675,
+    "longitude": 126.68213611111112,
+    "timestamp": "2026-03-31T18:47:27",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_15.jpg",
+    "latitude": 35.94678888888888,
+    "longitude": 126.68213611111112,
+    "timestamp": "2026-03-31T18:47:15",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_16.jpg",
+    "latitude": 35.9469,
+    "longitude": 126.68196111111112,
+    "timestamp": "2026-03-31T18:46:56",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_17.jpg",
+    "latitude": 35.946475,
+    "longitude": 126.6819,
+    "timestamp": "2026-03-31T18:45:59",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_18.jpg",
+    "latitude": 35.946461111111105,
+    "longitude": 126.68206111111111,
+    "timestamp": "2026-03-31T18:45:42",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_19.jpg",
+    "latitude": 35.94643055555555,
+    "longitude": 126.68220555555556,
+    "timestamp": "2026-03-31T18:45:31",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_20.jpg",
+    "latitude": 35.94646944444444,
+    "longitude": 126.68223611111111,
+    "timestamp": "2026-03-31T18:45:22",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_21.jpg",
+    "latitude": 35.946463888888886,
+    "longitude": 126.68232777777779,
+    "timestamp": "2026-03-31T18:45:12",
+    "items": [
+      {
+        "label": "캔/금속류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_22.jpg",
+    "latitude": 35.94646944444444,
+    "longitude": 126.68238055555555,
+    "timestamp": "2026-03-31T18:45:09",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 4
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_23.jpg",
+    "latitude": 35.946463888888886,
+    "longitude": 126.68241111111112,
+    "timestamp": "2026-03-31T18:45:04",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 4
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_24.jpg",
+    "latitude": 35.946505555555554,
+    "longitude": 126.68246388888889,
+    "timestamp": "2026-03-31T18:44:54",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_25.jpg",
+    "latitude": 35.946505555555554,
+    "longitude": 126.68246388888889,
+    "timestamp": "2026-03-31T18:44:54",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_26.jpg",
+    "latitude": 35.94678888888888,
+    "longitude": 126.68248055555556,
+    "timestamp": "2026-03-31T18:44:25",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_27.jpg",
+    "latitude": 35.946463888888886,
+    "longitude": 126.68257222222223,
+    "timestamp": "2026-03-31T18:42:50",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_28.jpg",
+    "latitude": 35.94670833333333,
+    "longitude": 126.68266944444444,
+    "timestamp": "2026-03-31T18:43:11",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "medium",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 3
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194035527_29.jpg",
+    "latitude": 35.94638888888888,
+    "longitude": 126.68254722222223,
+    "timestamp": "2026-03-31T18:42:20",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163.jpg",
+    "latitude": 35.946216666666665,
+    "longitude": 126.68253333333334,
+    "timestamp": "2026-03-31T18:41:45",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_01.jpg",
+    "latitude": 35.94620833333333,
+    "longitude": 126.68254166666667,
+    "timestamp": "2026-03-31T18:41:45",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_02.jpg",
+    "latitude": 35.94619722222222,
+    "longitude": 126.68260833333333,
+    "timestamp": "2026-03-31T18:41:36",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_03.jpg",
+    "latitude": 35.946124999999995,
+    "longitude": 126.68255555555557,
+    "timestamp": "2026-03-31T18:41:24",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_04.jpg",
+    "latitude": 35.94609444444444,
+    "longitude": 126.68255555555557,
+    "timestamp": "2026-03-31T18:41:20",
+    "items": [
+      {
+        "label": "캔/금속류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_05.jpg",
+    "latitude": 35.94608611111111,
+    "longitude": 126.68268611111111,
+    "timestamp": "2026-03-31T18:40:49",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_06.jpg",
+    "latitude": 35.94607222222222,
+    "longitude": 126.68281666666667,
+    "timestamp": "2026-03-31T18:40:25",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_07.jpg",
+    "latitude": 35.94606666666667,
+    "longitude": 126.68285277777778,
+    "timestamp": "2026-03-31T18:40:09",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_08.jpg",
+    "latitude": 35.94609444444444,
+    "longitude": 126.68296111111111,
+    "timestamp": "2026-03-31T18:39:59",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_09.jpg",
+    "latitude": 35.94609722222222,
+    "longitude": 126.68305277777779,
+    "timestamp": "2026-03-31T18:39:48",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_10.jpg",
+    "latitude": 35.94609166666666,
+    "longitude": 126.68312777777778,
+    "timestamp": "2026-03-31T18:38:12",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_11.jpg",
+    "latitude": 35.946102777777774,
+    "longitude": 126.68318055555557,
+    "timestamp": "2026-03-31T18:37:56",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_12.jpg",
+    "latitude": 35.94615555555555,
+    "longitude": 126.68328055555556,
+    "timestamp": "2026-03-31T18:37:39",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_13.jpg",
+    "latitude": 35.94614166666666,
+    "longitude": 126.68327222222223,
+    "timestamp": "2026-03-31T18:37:36",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_14.jpg",
+    "latitude": 35.94609444444444,
+    "longitude": 126.68325833333334,
+    "timestamp": "2026-03-31T18:37:24",
+    "items": [
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_15.jpg",
+    "latitude": 35.94594166666666,
+    "longitude": 126.683175,
+    "timestamp": "2026-03-31T18:36:07",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_16.jpg",
+    "latitude": 35.945877777777774,
+    "longitude": 126.68308333333334,
+    "timestamp": "2026-03-31T18:35:55",
+    "items": [
+      {
+        "label": "플라스틱류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_17.jpg",
+    "latitude": 35.94547222222222,
+    "longitude": 126.68286111111112,
+    "timestamp": "2026-03-31T18:34:58",
+    "items": [
+      {
+        "label": "담배꽁초",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_18.jpg",
+    "latitude": 35.94537222222222,
+    "longitude": 126.68285277777778,
+    "timestamp": "2026-03-31T18:34:42",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_19.jpg",
+    "latitude": 35.945524999999996,
+    "longitude": 126.6829388888889,
+    "timestamp": "2026-03-31T18:34:32",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "imagePath": "KakaoTalk_20260331_194057163_20.jpg",
+    "latitude": 35.94537222222222,
+    "longitude": 126.68295277777779,
+    "timestamp": "2026-03-31T18:34:29",
+    "items": [
+      {
+        "label": "비닐류",
+        "size": "small",
+        "quantity": 1
+      },
+      {
+        "label": "일반쓰레기",
+        "size": "small",
+        "quantity": 1
+      }
+    ]
+  }
+]
