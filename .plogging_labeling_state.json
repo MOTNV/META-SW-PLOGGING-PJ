@@ -1,0 +1,9 @@
+{
+  "image_dirs": [
+    "D:/4year/플로깅 라벨링/cgh_image"
+  ],
+  "json_paths": [
+    "D:/4year/플로깅 라벨링/cgh_json/data.json"
+  ],
+  "last_index": 1
+}
