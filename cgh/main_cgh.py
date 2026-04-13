@@ -1132,3 +1132,292 @@ class RecyclingBin:
                 0,
             ),
         )
+    @dataclass
+class RecyclingStation:
+    station_id: int
+
+    position: Position
+
+    name: str
+
+    bins: Dict[
+        TrashKind,
+        RecyclingBin,
+    ] = field(
+        default_factory=dict,
+    )
+
+    processed_count: int = 0
+
+    processed_weight: int = 0
+
+    maintenance_count: int = 0
+
+    def __post_init__(
+        self,
+    ) -> None:
+        if self.bins:
+            return
+
+        self.bins = {
+            kind: RecyclingBin(
+                trash_kind=kind,
+            )
+            for kind in TrashKind
+        }
+
+    def recycle(
+        self,
+        trash: Trash,
+    ) -> bool:
+        target_bin = self.bins.get(
+            trash.kind
+        )
+
+        if target_bin is None:
+            return False
+
+        if not target_bin.accept(
+            trash
+        ):
+            return False
+
+        self.processed_count += 1
+
+        self.processed_weight += (
+            trash.weight
+        )
+
+        return True
+
+    def maintenance(
+        self,
+    ) -> int:
+        emptied_count = 0
+
+        for recycling_bin in (
+            self.bins.values()
+        ):
+            if (
+                recycling_bin.fill_ratio
+                < 0.95
+            ):
+                continue
+
+            recycling_bin.empty()
+
+            emptied_count += 1
+
+        if emptied_count > 0:
+            self.maintenance_count += 1
+
+        return emptied_count
+
+    def total_stored_weight(
+        self,
+    ) -> int:
+        return sum(
+            recycling_bin.stored_weight
+            for recycling_bin
+            in self.bins.values()
+        )
+
+    def total_stored_count(
+        self,
+    ) -> int:
+        return sum(
+            recycling_bin.stored_count
+            for recycling_bin
+            in self.bins.values()
+        )
+
+    def status_text(
+        self,
+    ) -> str:
+        lines: List[str] = [
+            self.name,
+            (
+                f"위치: "
+                f"({self.position.x}, "
+                f"{self.position.y})"
+            ),
+            (
+                f"처리 개수: "
+                f"{self.processed_count}"
+            ),
+            (
+                f"처리 무게: "
+                f"{self.processed_weight}"
+            ),
+        ]
+
+        for trash_kind in TrashKind:
+            recycling_bin = (
+                self.bins[
+                    trash_kind
+                ]
+            )
+
+            lines.append(
+                recycling_bin.status_text()
+            )
+
+        return "\n".join(
+            lines
+        )
+
+    def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "station_id": (
+                self.station_id
+            ),
+            "x": self.position.x,
+            "y": self.position.y,
+            "name": self.name,
+            "processed_count": (
+                self.processed_count
+            ),
+            "processed_weight": (
+                self.processed_weight
+            ),
+            "maintenance_count": (
+                self.maintenance_count
+            ),
+            "bins": [
+                recycling_bin.to_dict()
+                for recycling_bin
+                in self.bins.values()
+            ],
+        }
+
+
+@dataclass
+class RestArea:
+    area_id: int
+
+    position: Position
+
+    name: str
+
+    recovery_amount: int = (
+        REST_RECOVERY_AMOUNT
+    )
+
+    usage_count: int = 0
+
+    total_recovered_energy: int = 0
+
+    def use(
+        self,
+        current_energy: int,
+        maximum_energy: int,
+    ) -> int:
+        available_recovery = max(
+            0,
+            maximum_energy
+            - current_energy,
+        )
+
+        recovered_energy = min(
+            self.recovery_amount,
+            available_recovery,
+        )
+
+        self.usage_count += 1
+
+        self.total_recovered_energy += (
+            recovered_energy
+        )
+
+        return recovered_energy
+
+    def status_text(
+        self,
+    ) -> str:
+        return (
+            f"{self.name}\n"
+            f"위치: "
+            f"({self.position.x}, "
+            f"{self.position.y})\n"
+            f"회복량: "
+            f"{self.recovery_amount}\n"
+            f"사용 횟수: "
+            f"{self.usage_count}\n"
+            f"총 회복 체력: "
+            f"{self.total_recovered_energy}"
+        )
+
+    def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "area_id": self.area_id,
+            "x": self.position.x,
+            "y": self.position.y,
+            "name": self.name,
+            "recovery_amount": (
+                self.recovery_amount
+            ),
+            "usage_count": (
+                self.usage_count
+            ),
+            "total_recovered_energy": (
+                self.total_recovered_energy
+            ),
+        }
+
+
+@dataclass
+class EnvironmentState:
+    weather: WeatherType = (
+        WeatherType.CLEAR
+    )
+
+    time_period: TimePeriod = (
+        TimePeriod.MORNING
+    )
+
+    weather_turns_remaining: int = 45
+
+    period_turns_remaining: int = 60
+
+    total_spawned_trash: int = 0
+
+    total_removed_trash: int = 0
+
+    def movement_energy_cost(
+        self,
+    ) -> int:
+        calculated_cost = (
+            MOVE_ENERGY_COST
+            * self.weather.energy_multiplier
+        )
+
+        return max(
+            1,
+            math.ceil(
+                calculated_cost
+            ),
+        )
+
+    def vision_range(
+        self,
+        base_range: int = 15,
+    ) -> int:
+        vision = int(
+            base_range
+            * self.weather.vision_multiplier
+        )
+
+        if (
+            self.time_period
+            == TimePeriod.NIGHT
+        ):
+            vision -= 3
+
+        return max(
+            4,
+            vision,
+        )
