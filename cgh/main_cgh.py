@@ -593,3 +593,542 @@ def calculate_average(
         sum(value_list)
         / len(value_list)
     )
+@dataclass
+class Trash:
+    trash_id: int
+
+    kind: TrashKind
+
+    position: Position
+
+    created_turn: int
+
+    wet: bool = False
+
+    damaged: bool = False
+
+    reserved_by: Optional[int] = None
+
+    @property
+    def weight(
+        self,
+    ) -> int:
+        return self.kind.weight
+
+    @property
+    def score(
+        self,
+    ) -> int:
+        penalty = 0
+
+        if self.wet:
+            penalty += 1
+
+        if self.damaged:
+            penalty += 1
+
+        return max(
+            1,
+            self.kind.score - penalty,
+        )
+
+    def age(
+        self,
+        current_turn: int,
+    ) -> int:
+        return max(
+            0,
+            current_turn - self.created_turn,
+        )
+
+    def condition_text(
+        self,
+    ) -> str:
+        conditions: List[str] = []
+
+        if self.wet:
+            conditions.append(
+                "젖음"
+            )
+
+        if self.damaged:
+            conditions.append(
+                "훼손"
+            )
+
+        if not conditions:
+            return "정상"
+
+        return ", ".join(
+            conditions
+        )
+
+    def description(
+        self,
+    ) -> str:
+        return (
+            f"쓰레기 번호: {self.trash_id}\n"
+            f"종류: {self.kind.display_name}\n"
+            f"위치: ({self.position.x}, {self.position.y})\n"
+            f"무게: {self.weight}\n"
+            f"점수: {self.score}\n"
+            f"상태: {self.condition_text()}"
+        )
+
+    def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "trash_id": self.trash_id,
+            "kind": self.kind.name,
+            "x": self.position.x,
+            "y": self.position.y,
+            "created_turn": self.created_turn,
+            "wet": self.wet,
+            "damaged": self.damaged,
+            "reserved_by": self.reserved_by,
+        }
+
+    @classmethod
+    def from_dict(
+        cls,
+        data: Dict[str, Any],
+    ) -> "Trash":
+        kind_name = str(
+            data.get(
+                "kind",
+                TrashKind.GENERAL.name,
+            )
+        )
+
+        try:
+            kind = TrashKind[
+                kind_name
+            ]
+
+        except KeyError:
+            kind = TrashKind.GENERAL
+
+        return cls(
+            trash_id=safe_int(
+                data.get(
+                    "trash_id",
+                ),
+                0,
+            ),
+            kind=kind,
+            position=Position(
+                safe_int(
+                    data.get(
+                        "x",
+                    ),
+                    0,
+                ),
+                safe_int(
+                    data.get(
+                        "y",
+                    ),
+                    0,
+                ),
+            ),
+            created_turn=safe_int(
+                data.get(
+                    "created_turn",
+                ),
+                0,
+            ),
+            wet=bool(
+                data.get(
+                    "wet",
+                    False,
+                )
+            ),
+            damaged=bool(
+                data.get(
+                    "damaged",
+                    False,
+                )
+            ),
+            reserved_by=data.get(
+                "reserved_by"
+            ),
+        )
+
+
+@dataclass
+class TrashBag:
+    capacity: int = (
+        AGENT_BAG_CAPACITY
+    )
+
+    items: List[Trash] = field(
+        default_factory=list,
+    )
+
+    @property
+    def total_weight(
+        self,
+    ) -> int:
+        return sum(
+            trash.weight
+            for trash in self.items
+        )
+
+    @property
+    def item_count(
+        self,
+    ) -> int:
+        return len(
+            self.items
+        )
+
+    @property
+    def remaining_capacity(
+        self,
+    ) -> int:
+        return max(
+            0,
+            self.capacity
+            - self.total_weight,
+        )
+
+    @property
+    def fill_ratio(
+        self,
+    ) -> float:
+        if self.capacity <= 0:
+            return 1.0
+
+        return min(
+            1.0,
+            self.total_weight
+            / self.capacity,
+        )
+
+    def is_empty(
+        self,
+    ) -> bool:
+        return (
+            self.item_count
+            == 0
+        )
+
+    def is_full(
+        self,
+    ) -> bool:
+        return (
+            self.total_weight
+            >= self.capacity
+        )
+
+    def can_add(
+        self,
+        trash: Trash,
+    ) -> bool:
+        return (
+            self.total_weight
+            + trash.weight
+            <= self.capacity
+        )
+
+    def add(
+        self,
+        trash: Trash,
+    ) -> bool:
+        if not self.can_add(
+            trash
+        ):
+            return False
+
+        self.items.append(
+            trash
+        )
+
+        return True
+
+    def remove(
+        self,
+        trash: Trash,
+    ) -> bool:
+        if trash not in self.items:
+            return False
+
+        self.items.remove(
+            trash
+        )
+
+        return True
+
+    def clear(
+        self,
+    ) -> None:
+        self.items.clear()
+
+    def grouped_counts(
+        self,
+    ) -> Dict[TrashKind, int]:
+        result: Dict[
+            TrashKind,
+            int,
+        ] = {
+            kind: 0
+            for kind in TrashKind
+        }
+
+        for trash in self.items:
+            result[
+                trash.kind
+            ] += 1
+
+        return result
+
+    def grouped_weights(
+        self,
+    ) -> Dict[TrashKind, int]:
+        result: Dict[
+            TrashKind,
+            int,
+        ] = {
+            kind: 0
+            for kind in TrashKind
+        }
+
+        for trash in self.items:
+            result[
+                trash.kind
+            ] += trash.weight
+
+        return result
+
+    def description(
+        self,
+    ) -> str:
+        if self.is_empty():
+            return "가방이 비어 있습니다."
+
+        lines: List[str] = [
+            (
+                f"가방 무게: "
+                f"{self.total_weight}/"
+                f"{self.capacity}"
+            )
+        ]
+
+        counts = (
+            self.grouped_counts()
+        )
+
+        for kind in TrashKind:
+            count = counts[
+                kind
+            ]
+
+            if count <= 0:
+                continue
+
+            lines.append(
+                (
+                    f"- {kind.display_name}: "
+                    f"{count}개"
+                )
+            )
+
+        return "\n".join(
+            lines
+        )
+
+    def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "capacity": self.capacity,
+            "items": [
+                trash.to_dict()
+                for trash in self.items
+            ],
+        }
+
+    @classmethod
+    def from_dict(
+        cls,
+        data: Dict[str, Any],
+    ) -> "TrashBag":
+        bag = cls(
+            capacity=safe_int(
+                data.get(
+                    "capacity",
+                ),
+                AGENT_BAG_CAPACITY,
+            )
+        )
+
+        item_data_list = data.get(
+            "items",
+            [],
+        )
+
+        for item_data in item_data_list:
+            if not isinstance(
+                item_data,
+                dict,
+            ):
+                continue
+
+            bag.items.append(
+                Trash.from_dict(
+                    item_data
+                )
+            )
+
+        return bag
+
+
+@dataclass
+class RecyclingBin:
+    trash_kind: TrashKind
+
+    capacity: int = 120
+
+    stored_weight: int = 0
+
+    stored_count: int = 0
+
+    @property
+    def remaining_capacity(
+        self,
+    ) -> int:
+        return max(
+            0,
+            self.capacity
+            - self.stored_weight,
+        )
+
+    @property
+    def fill_ratio(
+        self,
+    ) -> float:
+        if self.capacity <= 0:
+            return 1.0
+
+        return min(
+            1.0,
+            self.stored_weight
+            / self.capacity,
+        )
+
+    def is_full(
+        self,
+    ) -> bool:
+        return (
+            self.stored_weight
+            >= self.capacity
+        )
+
+    def can_accept(
+        self,
+        trash: Trash,
+    ) -> bool:
+        if (
+            trash.kind
+            != self.trash_kind
+        ):
+            return False
+
+        return (
+            self.stored_weight
+            + trash.weight
+            <= self.capacity
+        )
+
+    def accept(
+        self,
+        trash: Trash,
+    ) -> bool:
+        if not self.can_accept(
+            trash
+        ):
+            return False
+
+        self.stored_weight += (
+            trash.weight
+        )
+
+        self.stored_count += 1
+
+        return True
+
+    def empty(
+        self,
+    ) -> None:
+        self.stored_weight = 0
+        self.stored_count = 0
+
+    def status_text(
+        self,
+    ) -> str:
+        return (
+            f"{self.trash_kind.display_name}: "
+            f"{self.stored_weight}/"
+            f"{self.capacity} "
+            f"({format_percent(self.fill_ratio)})"
+        )
+
+    def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "trash_kind": (
+                self.trash_kind.name
+            ),
+            "capacity": self.capacity,
+            "stored_weight": (
+                self.stored_weight
+            ),
+            "stored_count": (
+                self.stored_count
+            ),
+        }
+
+    @classmethod
+    def from_dict(
+        cls,
+        data: Dict[str, Any],
+    ) -> "RecyclingBin":
+        kind_name = str(
+            data.get(
+                "trash_kind",
+                TrashKind.GENERAL.name,
+            )
+        )
+
+        try:
+            trash_kind = TrashKind[
+                kind_name
+            ]
+
+        except KeyError:
+            trash_kind = (
+                TrashKind.GENERAL
+            )
+
+        return cls(
+            trash_kind=trash_kind,
+            capacity=safe_int(
+                data.get(
+                    "capacity",
+                ),
+                120,
+            ),
+            stored_weight=safe_int(
+                data.get(
+                    "stored_weight",
+                ),
+                0,
+            ),
+            stored_count=safe_int(
+                data.get(
+                    "stored_count",
+                ),
+                0,
+            ),
+        )
