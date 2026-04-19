@@ -1548,3 +1548,295 @@ class EnvironmentState:
             )
 
         return events
+        def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "weather": (
+                self.weather.name
+            ),
+            "time_period": (
+                self.time_period.name
+            ),
+            "weather_turns_remaining": (
+                self.weather_turns_remaining
+            ),
+            "period_turns_remaining": (
+                self.period_turns_remaining
+            ),
+            "total_spawned_trash": (
+                self.total_spawned_trash
+            ),
+            "total_removed_trash": (
+                self.total_removed_trash
+            ),
+        }
+
+    @classmethod
+    def from_dict(
+        cls,
+        data: Dict[str, Any],
+    ) -> "EnvironmentState":
+        weather_name = str(
+            data.get(
+                "weather",
+                WeatherType.CLEAR.name,
+            )
+        )
+
+        period_name = str(
+            data.get(
+                "time_period",
+                TimePeriod.MORNING.name,
+            )
+        )
+
+        try:
+            weather = WeatherType[
+                weather_name
+            ]
+
+        except KeyError:
+            weather = (
+                WeatherType.CLEAR
+            )
+
+        try:
+            time_period = TimePeriod[
+                period_name
+            ]
+
+        except KeyError:
+            time_period = (
+                TimePeriod.MORNING
+            )
+
+        return cls(
+            weather=weather,
+            time_period=time_period,
+            weather_turns_remaining=safe_int(
+                data.get(
+                    "weather_turns_remaining",
+                ),
+                45,
+            ),
+            period_turns_remaining=safe_int(
+                data.get(
+                    "period_turns_remaining",
+                ),
+                60,
+            ),
+            total_spawned_trash=safe_int(
+                data.get(
+                    "total_spawned_trash",
+                ),
+                0,
+            ),
+            total_removed_trash=safe_int(
+                data.get(
+                    "total_removed_trash",
+                ),
+                0,
+            ),
+        )
+
+
+@dataclass
+class SimulationStatistics:
+    total_pickups: int = 0
+
+    total_recycled: int = 0
+
+    total_score: int = 0
+
+    total_moves: int = 0
+
+    total_rests: int = 0
+
+    total_energy_used: int = 0
+
+    failed_pickups: int = 0
+
+    unreachable_targets: int = 0
+
+    trash_spawn_events: int = 0
+
+    cleanest_turn: int = 0
+
+    lowest_trash_count: int = (
+        10 ** 9
+    )
+
+    highest_trash_count: int = 0
+
+    def update_from_agents(
+        self,
+        agents: List["CleanerAgent"],
+    ) -> None:
+        self.total_pickups = sum(
+            agent.collected_count
+            for agent in agents
+        )
+
+        self.total_recycled = sum(
+            agent.recycled_count
+            for agent in agents
+        )
+
+        self.total_score = sum(
+            agent.score
+            for agent in agents
+        )
+
+        self.total_moves = sum(
+            agent.moved_steps
+            for agent in agents
+        )
+
+        self.total_rests = sum(
+            agent.rested_count
+            for agent in agents
+        )
+
+        self.total_energy_used = sum(
+            agent.total_energy_used
+            for agent in agents
+        )
+
+    def observe_trash_count(
+        self,
+        current_turn: int,
+        trash_count: int,
+    ) -> None:
+        if (
+            trash_count
+            < self.lowest_trash_count
+        ):
+            self.lowest_trash_count = (
+                trash_count
+            )
+
+            self.cleanest_turn = (
+                current_turn
+            )
+
+        if (
+            trash_count
+            > self.highest_trash_count
+        ):
+            self.highest_trash_count = (
+                trash_count
+            )
+
+    def average_score(
+        self,
+        agents: List["CleanerAgent"],
+    ) -> float:
+        if not agents:
+            return 0.0
+
+        return (
+            self.total_score
+            / len(agents)
+        )
+
+    def recycling_rate(
+        self,
+    ) -> float:
+        if self.total_pickups <= 0:
+            return 0.0
+
+        return min(
+            1.0,
+            self.total_recycled
+            / self.total_pickups,
+        )
+
+    def movement_efficiency(
+        self,
+    ) -> float:
+        if self.total_moves <= 0:
+            return 0.0
+
+        return (
+            self.total_pickups
+            / self.total_moves
+        )
+
+    def energy_efficiency(
+        self,
+    ) -> float:
+        if (
+            self.total_energy_used
+            <= 0
+        ):
+            return 0.0
+
+        return (
+            self.total_recycled
+            / self.total_energy_used
+        )
+
+    def status_text(
+        self,
+    ) -> str:
+        return (
+            f"총 수거: "
+            f"{self.total_pickups}개\n"
+            f"총 분리배출: "
+            f"{self.total_recycled}개\n"
+            f"총점: "
+            f"{self.total_score}점\n"
+            f"총 이동: "
+            f"{self.total_moves}회\n"
+            f"총 휴식: "
+            f"{self.total_rests}회\n"
+            f"재활용률: "
+            f"{format_percent(self.recycling_rate())}\n"
+            f"최저 쓰레기 수: "
+            f"{self.lowest_trash_count}개\n"
+            f"가장 깨끗한 턴: "
+            f"{self.cleanest_turn}"
+        )
+
+    def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "total_pickups": (
+                self.total_pickups
+            ),
+            "total_recycled": (
+                self.total_recycled
+            ),
+            "total_score": (
+                self.total_score
+            ),
+            "total_moves": (
+                self.total_moves
+            ),
+            "total_rests": (
+                self.total_rests
+            ),
+            "total_energy_used": (
+                self.total_energy_used
+            ),
+            "failed_pickups": (
+                self.failed_pickups
+            ),
+            "unreachable_targets": (
+                self.unreachable_targets
+            ),
+            "trash_spawn_events": (
+                self.trash_spawn_events
+            ),
+            "cleanest_turn": (
+                self.cleanest_turn
+            ),
+            "lowest_trash_count": (
+                self.lowest_trash_count
+            ),
+            "highest_trash_count": (
+                self.highest_trash_count
+            ),
+        }
