@@ -1421,3 +1421,130 @@ class EnvironmentState:
             4,
             vision,
         )
+        def spawn_multiplier(
+        self,
+    ) -> float:
+        multiplier = 1.0
+
+        if (
+            self.weather
+            == WeatherType.WINDY
+        ):
+            multiplier += 0.35
+
+        if (
+            self.weather
+            == WeatherType.RAIN
+        ):
+            multiplier -= 0.15
+
+        if (
+            self.time_period
+            == TimePeriod.EVENING
+        ):
+            multiplier += 0.15
+
+        if (
+            self.time_period
+            == TimePeriod.NIGHT
+        ):
+            multiplier -= 0.25
+
+        return max(
+            0.4,
+            multiplier,
+        )
+
+    def update(
+        self,
+        current_turn: int,
+    ) -> List[SimulationEvent]:
+        events: List[
+            SimulationEvent
+        ] = []
+
+        self.weather_turns_remaining -= 1
+
+        self.period_turns_remaining -= 1
+
+        if (
+            self.weather_turns_remaining
+            <= 0
+        ):
+            previous_weather = (
+                self.weather
+            )
+
+            self.weather = random.choice(
+                list(
+                    WeatherType
+                )
+            )
+
+            self.weather_turns_remaining = (
+                random.randint(
+                    35,
+                    75,
+                )
+            )
+
+            if (
+                previous_weather
+                != self.weather
+            ):
+                events.append(
+                    SimulationEvent(
+                        turn=current_turn,
+                        event_type=(
+                            EventType.WEATHER
+                        ),
+                        message=(
+                            f"날씨가 "
+                            f"{previous_weather.display_name}에서 "
+                            f"{self.weather.display_name}(으)로 "
+                            f"변했습니다."
+                        ),
+                    )
+                )
+
+        if (
+            self.period_turns_remaining
+            <= 0
+        ):
+            periods = list(
+                TimePeriod
+            )
+
+            current_index = (
+                periods.index(
+                    self.time_period
+                )
+            )
+
+            next_index = (
+                current_index + 1
+            ) % len(periods)
+
+            self.time_period = (
+                periods[
+                    next_index
+                ]
+            )
+
+            self.period_turns_remaining = 60
+
+            events.append(
+                SimulationEvent(
+                    turn=current_turn,
+                    event_type=(
+                        EventType.INFO
+                    ),
+                    message=(
+                        f"시간대가 "
+                        f"{self.time_period.display_name}(으)로 "
+                        f"변했습니다."
+                    ),
+                )
+            )
+
+        return events
