@@ -1840,3 +1840,58 @@ class SimulationStatistics:
                 self.highest_trash_count
             ),
         }
+        @classmethod
+    def from_dict(
+        cls,
+        data: Dict[str, Any],
+    ) -> "SimulationStatistics":
+        return cls(
+            total_pickups=safe_int(
+                data.get("total_pickups"),
+                0,
+            ),
+            total_recycled=safe_int(
+                data.get("total_recycled"),
+                0,
+            ),
+            total_score=safe_int(
+                data.get("total_score"),
+                0,
+            ),
+            total_moves=safe_int(
+                data.get("total_moves"),
+                0,
+            ),
+            total_rests=safe_int(
+                data.get("total_rests"),
+                0,
+            ),
+            total_energy_used=safe_int(
+                data.get("total_energy_used"),
+                0,
+            ),
+            failed_pickups=safe_int(
+                data.get("failed_pickups"),
+                0,
+            ),
+            unreachable_targets=safe_int(
+                data.get("unreachable_targets"),
+                0,
+            ),
+            trash_spawn_events=safe_int(
+                data.get("trash_spawn_events"),
+                0,
+            ),
+            cleanest_turn=safe_int(
+                data.get("cleanest_turn"),
+                0,
+            ),
+            lowest_trash_count=safe_int(
+                data.get("lowest_trash_count"),
+                10 ** 9,
+            ),
+            highest_trash_count=safe_int(
+                data.get("highest_trash_count"),
+                0,
+            ),
+        )
