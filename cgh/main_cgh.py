@@ -2203,3 +2203,134 @@ class CleanerAgent:
         )
 
         return recovered_energy
+    
+        def continue_resting(
+        self,
+        recovery_amount: int,
+    ) -> int:
+        recovered_energy = (
+            self.recover_energy(
+                recovery_amount
+            )
+        )
+
+        if (
+            self.energy
+            >= int(
+                self.maximum_energy
+                * 0.8
+            )
+        ):
+            self.state = (
+                AgentState.SEARCHING
+            )
+
+        else:
+            self.state = (
+                AgentState.RESTING
+            )
+
+        return recovered_energy
+
+    def idle(
+        self,
+    ) -> None:
+        self.idle_turns += 1
+
+        self.state = (
+            AgentState.IDLE
+        )
+
+        if (
+            self.energy
+            < self.maximum_energy
+        ):
+            self.recover_energy(
+                IDLE_RECOVERY_AMOUNT
+            )
+
+    def status_text(
+        self,
+    ) -> str:
+        target_text = "없음"
+
+        if (
+            self.target_position
+            is not None
+        ):
+            target_text = (
+                f"("
+                f"{self.target_position.x}, "
+                f"{self.target_position.y}"
+                f")"
+            )
+
+        return (
+            f"이름: {self.name}\n"
+            f"번호: {self.agent_id}\n"
+            f"상태: {self.state.value}\n"
+            f"위치: "
+            f"({self.position.x}, "
+            f"{self.position.y})\n"
+            f"체력: "
+            f"{self.energy}/"
+            f"{self.maximum_energy}\n"
+            f"체력 막대: "
+            f"{create_progress_bar("
+            f"self.energy, "
+            f"self.maximum_energy"
+            f")}\n"
+            f"가방: "
+            f"{self.bag.total_weight}/"
+            f"{self.bag.capacity}\n"
+            f"목표 위치: "
+            f"{target_text}\n"
+            f"남은 경로: "
+            f"{len(self.path)}칸\n"
+            f"점수: "
+            f"{self.score}\n"
+            f"수거 횟수: "
+            f"{self.collected_count}\n"
+            f"분리배출 횟수: "
+            f"{self.recycled_count}\n"
+            f"이동 횟수: "
+            f"{self.moved_steps}\n"
+            f"휴식 횟수: "
+            f"{self.rested_count}"
+        )
+
+    def to_dict(
+        self,
+    ) -> Dict[str, Any]:
+        return {
+            "agent_id": self.agent_id,
+            "name": self.name,
+            "x": self.position.x,
+            "y": self.position.y,
+            "color": self.color,
+            "energy": self.energy,
+            "maximum_energy": (
+                self.maximum_energy
+            ),
+            "bag": self.bag.to_dict(),
+            "state": self.state.name,
+            "score": self.score,
+            "collected_count": (
+                self.collected_count
+            ),
+            "recycled_count": (
+                self.recycled_count
+            ),
+            "moved_steps": (
+                self.moved_steps
+            ),
+            "rested_count": (
+                self.rested_count
+            ),
+            "total_energy_used": (
+                self.total_energy_used
+            ),
+            "idle_turns": (
+                self.idle_turns
+            ),
+        }
