@@ -2334,3 +2334,69 @@ class CleanerAgent:
                 self.idle_turns
             ),
         }
+        @classmethod
+    def from_dict(
+        cls,
+        data: Dict[str, Any],
+    ) -> "CleanerAgent":
+        state_name = str(
+            data.get(
+                "state",
+                AgentState.SEARCHING.name,
+            )
+        )
+
+        try:
+            state = AgentState[
+                state_name
+            ]
+
+        except KeyError:
+            state = (
+                AgentState.SEARCHING
+            )
+
+        agent = cls(
+            agent_id=safe_int(
+                data.get("agent_id"),
+                0,
+            ),
+            name=str(
+                data.get(
+                    "name",
+                    "청소원",
+                )
+            ),
+            position=Position(
+                safe_int(
+                    data.get("x"),
+                    1,
+                ),
+                safe_int(
+                    data.get("y"),
+                    1,
+                ),
+            ),
+            color=str(
+                data.get(
+                    "color",
+                    "#EF5350",
+                )
+            ),
+            energy=safe_int(
+                data.get("energy"),
+                AGENT_MAX_ENERGY,
+            ),
+            maximum_energy=safe_int(
+                data.get("maximum_energy"),
+                AGENT_MAX_ENERGY,
+            ),
+            state=state,
+        )
+
+        agent.bag = TrashBag.from_dict(
+            data.get(
+                "bag",
+                {},
+            )
+        )
