@@ -1895,3 +1895,311 @@ class SimulationStatistics:
                 0,
             ),
         )
+    @dataclass
+class CleanerAgent:
+    agent_id: int
+
+    name: str
+
+    position: Position
+
+    color: str
+
+    energy: int = (
+        AGENT_MAX_ENERGY
+    )
+
+    maximum_energy: int = (
+        AGENT_MAX_ENERGY
+    )
+
+    bag: TrashBag = field(
+        default_factory=TrashBag,
+    )
+
+    state: AgentState = (
+        AgentState.SEARCHING
+    )
+
+    score: int = 0
+
+    collected_count: int = 0
+
+    recycled_count: int = 0
+
+    moved_steps: int = 0
+
+    rested_count: int = 0
+
+    total_energy_used: int = 0
+
+    idle_turns: int = 0
+
+    target_trash_id: Optional[
+        int
+    ] = None
+
+    target_position: Optional[
+        Position
+    ] = None
+
+    path: List[
+        Position
+    ] = field(
+        default_factory=list,
+    )
+
+    def is_low_energy(
+        self,
+    ) -> bool:
+        return (
+            self.energy
+            <= LOW_ENERGY_THRESHOLD
+        )
+
+    def is_bag_empty(
+        self,
+    ) -> bool:
+        return self.bag.is_empty()
+
+    def should_return_to_station(
+        self,
+    ) -> bool:
+        return (
+            self.bag.fill_ratio
+            >= BAG_RETURN_RATIO
+        )
+
+    def can_move(
+        self,
+    ) -> bool:
+        return self.energy > 0
+
+    def spend_energy(
+        self,
+        amount: int,
+    ) -> int:
+        amount = max(
+            0,
+            amount,
+        )
+
+        actual_amount = min(
+            self.energy,
+            amount,
+        )
+
+        self.energy -= (
+            actual_amount
+        )
+
+        self.total_energy_used += (
+            actual_amount
+        )
+
+        return actual_amount
+
+    def recover_energy(
+        self,
+        amount: int,
+    ) -> int:
+        previous_energy = (
+            self.energy
+        )
+
+        self.energy = clamp(
+            self.energy + amount,
+            0,
+            self.maximum_energy,
+        )
+
+        return (
+            self.energy
+            - previous_energy
+        )
+
+    def set_trash_target(
+        self,
+        trash: Trash,
+        path: List[Position],
+    ) -> None:
+        self.target_trash_id = (
+            trash.trash_id
+        )
+
+        self.target_position = (
+            trash.position
+        )
+
+        self.path = list(
+            path
+        )
+
+        self.state = (
+            AgentState.MOVING_TO_TRASH
+        )
+
+    def set_destination(
+        self,
+        position: Position,
+        path: List[Position],
+        state: AgentState,
+    ) -> None:
+        self.target_position = (
+            position
+        )
+
+        self.target_trash_id = None
+
+        self.path = list(
+            path
+        )
+
+        self.state = state
+
+    def clear_target(
+        self,
+    ) -> None:
+        self.target_trash_id = None
+
+        self.target_position = None
+
+        self.path.clear()
+
+    def next_step(
+        self,
+    ) -> Optional[Position]:
+        if not self.path:
+            return None
+
+        return self.path.pop(
+            0
+        )
+
+    def move_to(
+        self,
+        position: Position,
+        energy_cost: int,
+    ) -> bool:
+        if not self.can_move():
+            return False
+
+        self.position = position
+
+        self.spend_energy(
+            energy_cost
+        )
+
+        self.moved_steps += 1
+
+        self.idle_turns = 0
+
+        return True
+
+    def collect_trash(
+        self,
+        trash: Trash,
+    ) -> bool:
+        if not self.bag.add(
+            trash
+        ):
+            return False
+
+        self.spend_energy(
+            PICKUP_ENERGY_COST
+        )
+
+        self.collected_count += 1
+
+        self.score += (
+            trash.score
+        )
+
+        self.clear_target()
+
+        self.state = (
+            AgentState.SEARCHING
+        )
+
+        return True
+
+    def recycle_bag(
+        self,
+        station: RecyclingStation,
+    ) -> Tuple[int, int]:
+        recycled_count = 0
+
+        gained_score = 0
+
+        remaining_items: List[
+            Trash
+        ] = []
+
+        for trash in self.bag.items:
+            if station.recycle(
+                trash
+            ):
+                recycled_count += 1
+
+                gained_score += max(
+                    1,
+                    trash.score // 2,
+                )
+
+            else:
+                remaining_items.append(
+                    trash
+                )
+
+        self.bag.items = (
+            remaining_items
+        )
+
+        self.recycled_count += (
+            recycled_count
+        )
+
+        self.score += (
+            gained_score
+        )
+
+        if recycled_count > 0:
+            self.spend_energy(
+                RECYCLE_ENERGY_COST
+            )
+
+        self.clear_target()
+
+        self.state = (
+            AgentState.SEARCHING
+        )
+
+        return (
+            recycled_count,
+            gained_score,
+        )
+
+    def rest_at(
+        self,
+        rest_area: RestArea,
+    ) -> int:
+        recovered_energy = (
+            rest_area.use(
+                self.energy,
+                self.maximum_energy,
+            )
+        )
+
+        self.recover_energy(
+            recovered_energy
+        )
+
+        self.rested_count += 1
+
+        self.clear_target()
+
+        self.state = (
+            AgentState.RESTING
+        )
+
+        return recovered_energy
