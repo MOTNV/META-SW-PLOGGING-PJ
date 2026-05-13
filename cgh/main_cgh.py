@@ -2400,3 +2400,883 @@ class CleanerAgent:
                 {},
             )
         )
+                agent.score = safe_int(
+            data.get("score"),
+            0,
+        )
+
+        agent.collected_count = safe_int(
+            data.get("collected_count"),
+            0,
+        )
+
+        agent.recycled_count = safe_int(
+            data.get("recycled_count"),
+            0,
+        )
+
+        agent.moved_steps = safe_int(
+            data.get("moved_steps"),
+            0,
+        )
+
+        agent.rested_count = safe_int(
+            data.get("rested_count"),
+            0,
+        )
+
+        agent.total_energy_used = safe_int(
+            data.get("total_energy_used"),
+            0,
+        )
+
+        agent.idle_turns = safe_int(
+            data.get("idle_turns"),
+            0,
+        )
+
+        return agent
+
+
+class WorldMap:
+    def __init__(
+        self,
+        width: int,
+        height: int,
+    ) -> None:
+        self.width = width
+        self.height = height
+
+        self.tiles = [
+            [
+                TileType.EMPTY
+                for _ in range(width)
+            ]
+            for _ in range(height)
+        ]
+
+        self.stations: List[
+            RecyclingStation
+        ] = []
+
+        self.rest_areas: List[
+            RestArea
+        ] = []
+
+    def in_bounds(
+        self,
+        position: Position,
+    ) -> bool:
+        return (
+            0 <= position.x < self.width
+            and 0 <= position.y < self.height
+        )
+
+    def tile_at(
+        self,
+        position: Position,
+    ) -> TileType:
+        if not self.in_bounds(position):
+            return TileType.WALL
+
+        return self.tiles[
+            position.y
+        ][
+            position.x
+        ]
+
+    def set_tile(
+        self,
+        position: Position,
+        tile_type: TileType,
+    ) -> None:
+        if self.in_bounds(position):
+            self.tiles[
+                position.y
+            ][
+                position.x
+            ] = tile_type
+
+    def is_walkable(
+        self,
+        position: Position,
+    ) -> bool:
+        return (
+            self.in_bounds(position)
+            and self.tile_at(position)
+            not in {
+                TileType.WALL,
+                TileType.WATER,
+            }
+        )
+
+    def random_empty_position(
+        self,
+        blocked: Optional[
+            Set[Position]
+        ] = None,
+    ) -> Optional[Position]:
+        blocked = blocked or set()
+
+        candidates: List[
+            Position
+        ] = []
+
+        for y in range(
+            1,
+            self.height - 1,
+        ):
+            for x in range(
+                1,
+                self.width - 1,
+            ):
+                position = Position(
+                    x,
+                    y,
+                )
+
+                if (
+                    self.tile_at(position)
+                    == TileType.EMPTY
+                    and position not in blocked
+                ):
+                    candidates.append(
+                        position
+                    )
+
+        if not candidates:
+            return None
+
+        return random.choice(
+            candidates
+        )
+
+    def generate(
+        self,
+        config: SimulationConfig,
+    ) -> None:
+        for x in range(
+            self.width
+        ):
+            self.set_tile(
+                Position(x, 0),
+                TileType.WALL,
+            )
+
+            self.set_tile(
+                Position(
+                    x,
+                    self.height - 1,
+                ),
+                TileType.WALL,
+            )
+
+        for y in range(
+            self.height
+        ):
+            self.set_tile(
+                Position(0, y),
+                TileType.WALL,
+            )
+
+            self.set_tile(
+                Position(
+                    self.width - 1,
+                    y,
+                ),
+                TileType.WALL,
+            )
+
+        for _ in range(
+            config.obstacle_count
+        ):
+            position = (
+                self.random_empty_position()
+            )
+
+            if position:
+                self.set_tile(
+                    position,
+                    TileType.WALL,
+                )
+
+        for _ in range(18):
+            position = (
+                self.random_empty_position()
+            )
+
+            if position:
+                self.set_tile(
+                    position,
+                    TileType.FLOWER,
+                )
+
+        for index in range(
+            config.station_count
+        ):
+            position = (
+                self.random_empty_position()
+            )
+
+            if position:
+                self.set_tile(
+                    position,
+                    TileType.STATION,
+                )
+
+                self.stations.append(
+                    RecyclingStation(
+                        index + 1,
+                        position,
+                        f"분리수거장 {index + 1}",
+                    )
+                )
+
+        for index in range(
+            config.rest_area_count
+        ):
+            position = (
+                self.random_empty_position()
+            )
+
+            if position:
+                self.set_tile(
+                    position,
+                    TileType.REST_AREA,
+                )
+
+                self.rest_areas.append(
+                    RestArea(
+                        index + 1,
+                        position,
+                        f"휴식 공간 {index + 1}",
+                    )
+                )
+
+    def nearest_station(
+        self,
+        position: Position,
+    ) -> Optional[
+        RecyclingStation
+    ]:
+        if not self.stations:
+            return None
+
+        return min(
+            self.stations,
+            key=lambda station:
+            position.manhattan_distance(
+                station.position
+            ),
+        )
+
+    def nearest_rest_area(
+        self,
+        position: Position,
+    ) -> Optional[RestArea]:
+        if not self.rest_areas:
+            return None
+
+        return min(
+            self.rest_areas,
+            key=lambda area:
+            position.manhattan_distance(
+                area.position
+            ),
+        )
+
+
+class PathFinder:
+    def __init__(
+        self,
+        world: WorldMap,
+    ) -> None:
+        self.world = world
+
+    def find_path(
+        self,
+        start: Position,
+        goal: Position,
+    ) -> List[Position]:
+        if start == goal:
+            return []
+
+        queue = [
+            (
+                0,
+                0,
+                start,
+            )
+        ]
+
+        came_from = {
+            start: None
+        }
+
+        cost = {
+            start: 0
+        }
+
+        sequence = 0
+
+        while queue:
+            _, _, current = (
+                heapq.heappop(
+                    queue
+                )
+            )
+
+            if current == goal:
+                break
+
+            for neighbor in (
+                current.neighbors()
+            ):
+                if not self.world.is_walkable(
+                    neighbor
+                ):
+                    continue
+
+                new_cost = (
+                    cost[current] + 1
+                )
+
+                if (
+                    neighbor not in cost
+                    or new_cost
+                    < cost[neighbor]
+                ):
+                    cost[
+                        neighbor
+                    ] = new_cost
+
+                    priority = (
+                        new_cost
+                        + neighbor.manhattan_distance(
+                            goal
+                        )
+                    )
+
+                    sequence += 1
+
+                    heapq.heappush(
+                        queue,
+                        (
+                            priority,
+                            sequence,
+                            neighbor,
+                        ),
+                    )
+
+                    came_from[
+                        neighbor
+                    ] = current
+
+        if goal not in came_from:
+            return []
+
+        path: List[
+            Position
+        ] = []
+
+        current = goal
+
+        while current != start:
+            path.append(
+                current
+            )
+
+            current = came_from[
+                current
+            ]
+
+        path.reverse()
+
+        return path
+
+
+class SimulationEngine:
+    COLORS = [
+        "#EF5350",
+        "#42A5F5",
+        "#66BB6A",
+        "#AB47BC",
+        "#FFA726",
+    ]
+
+    NAMES = [
+        "가현",
+        "민수",
+        "지우",
+        "서연",
+        "도윤",
+    ]
+
+    def __init__(
+        self,
+    ) -> None:
+        self.config = (
+            SimulationConfig()
+        )
+
+        self.config.normalize()
+
+        random.seed(
+            self.config.random_seed
+        )
+
+        self.world = WorldMap(
+            self.config.width,
+            self.config.height,
+        )
+
+        self.world.generate(
+            self.config
+        )
+
+        self.pathfinder = PathFinder(
+            self.world
+        )
+
+        self.environment = (
+            EnvironmentState()
+        )
+
+        self.statistics = (
+            SimulationStatistics()
+        )
+
+        self.agents: List[
+            CleanerAgent
+        ] = []
+
+        self.trash_items: Dict[
+            int,
+            Trash
+        ] = {}
+
+        self.events: List[
+            SimulationEvent
+        ] = []
+
+        self.turn = 0
+        self.next_trash_id = 1
+        self.running = False
+
+        self.create_agents()
+        self.spawn_trash(
+            self.config.initial_trash_count
+        )
+
+    def create_agents(
+        self,
+    ) -> None:
+        blocked: Set[
+            Position
+        ] = set()
+
+        for index in range(
+            self.config.agent_count
+        ):
+            position = (
+                self.world.random_empty_position(
+                    blocked
+                )
+            )
+
+            if not position:
+                continue
+
+            blocked.add(
+                position
+            )
+
+            self.agents.append(
+                CleanerAgent(
+                    agent_id=index + 1,
+                    name=self.NAMES[
+                        index
+                        % len(self.NAMES)
+                    ],
+                    position=position,
+                    color=self.COLORS[
+                        index
+                        % len(self.COLORS)
+                    ],
+                )
+            )
+
+    def spawn_trash(
+        self,
+        count: int,
+    ) -> None:
+        blocked = {
+            trash.position
+            for trash
+            in self.trash_items.values()
+        }
+
+        for _ in range(count):
+            position = (
+                self.world.random_empty_position(
+                    blocked
+                )
+            )
+
+            if not position:
+                break
+
+            trash = Trash(
+                trash_id=self.next_trash_id,
+                kind=TrashKind.random_kind(),
+                position=position,
+                created_turn=self.turn,
+            )
+
+            self.trash_items[
+                trash.trash_id
+            ] = trash
+
+            blocked.add(
+                position
+            )
+
+            self.next_trash_id += 1
+
+    def add_event(
+        self,
+        event_type: EventType,
+        message: str,
+    ) -> None:
+        self.events.append(
+            SimulationEvent(
+                self.turn,
+                event_type,
+                message,
+            )
+        )
+
+        self.events = self.events[
+            -EVENT_LOG_LIMIT:
+        ]
+
+    def update_agent(
+        self,
+        agent: CleanerAgent,
+    ) -> None:
+        if agent.is_low_energy():
+            rest_area = (
+                self.world.nearest_rest_area(
+                    agent.position
+                )
+            )
+
+            if rest_area:
+                if (
+                    agent.position
+                    == rest_area.position
+                ):
+                    agent.rest_at(
+                        rest_area
+                    )
+
+                    return
+
+                agent.path = (
+                    self.pathfinder.find_path(
+                        agent.position,
+                        rest_area.position,
+                    )
+                )
+
+        elif agent.should_return_to_station():
+            station = (
+                self.world.nearest_station(
+                    agent.position
+                )
+            )
+
+            if station:
+                if (
+                    agent.position
+                    == station.position
+                ):
+                    agent.recycle_bag(
+                        station
+                    )
+
+                    return
+
+                agent.path = (
+                    self.pathfinder.find_path(
+                        agent.position,
+                        station.position,
+                    )
+                )
+
+        elif not agent.path:
+            available = [
+                trash
+                for trash
+                in self.trash_items.values()
+                if agent.bag.can_add(
+                    trash
+                )
+            ]
+
+            if available:
+                target = min(
+                    available,
+                    key=lambda trash:
+                    agent.position.manhattan_distance(
+                        trash.position
+                    ),
+                )
+
+                agent.target_trash_id = (
+                    target.trash_id
+                )
+
+                agent.path = (
+                    self.pathfinder.find_path(
+                        agent.position,
+                        target.position,
+                    )
+                )
+
+        if agent.path:
+            next_position = (
+                agent.next_step()
+            )
+
+            if next_position:
+                agent.move_to(
+                    next_position,
+                    self.environment.movement_energy_cost(),
+                )
+
+        target = self.trash_items.get(
+            agent.target_trash_id
+            or -1
+        )
+
+        if (
+            target
+            and target.position
+            == agent.position
+        ):
+            if agent.collect_trash(
+                target
+            ):
+                self.trash_items.pop(
+                    target.trash_id,
+                    None,
+                )
+
+                self.add_event(
+                    EventType.PICKUP,
+                    (
+                        f"{agent.name}이(가) "
+                        f"{target.kind.display_name}을 "
+                        f"수거했습니다."
+                    ),
+                )
+
+    def step(
+        self,
+    ) -> None:
+        self.turn += 1
+
+        for event in (
+            self.environment.update(
+                self.turn
+            )
+        ):
+            self.events.append(
+                event
+            )
+
+        if (
+            self.turn
+            % TRASH_SPAWN_INTERVAL
+            == 0
+        ):
+            self.spawn_trash(
+                random.randint(
+                    TRASH_SPAWN_MIN_COUNT,
+                    TRASH_SPAWN_MAX_COUNT,
+                )
+            )
+
+        for agent in self.agents:
+            self.update_agent(
+                agent
+            )
+
+        self.statistics.update_from_agents(
+            self.agents
+        )
+
+
+class SimulationApp:
+    def __init__(
+        self,
+        root: tk.Tk,
+    ) -> None:
+        self.root = root
+        self.root.title(
+            APP_TITLE
+        )
+
+        self.engine = (
+            SimulationEngine()
+        )
+
+        self.canvas = tk.Canvas(
+            root,
+            width=MAP_WIDTH * CELL_SIZE,
+            height=MAP_HEIGHT * CELL_SIZE,
+        )
+
+        self.canvas.pack(
+            side=tk.LEFT
+        )
+
+        self.info = tk.Text(
+            root,
+            width=38,
+        )
+
+        self.info.pack(
+            side=tk.RIGHT,
+            fill=tk.BOTH,
+        )
+
+        self.root.after(
+            DEFAULT_TICK_DELAY,
+            self.update,
+        )
+
+    def draw(
+        self,
+    ) -> None:
+        self.canvas.delete(
+            "all"
+        )
+
+        for y in range(
+            MAP_HEIGHT
+        ):
+            for x in range(
+                MAP_WIDTH
+            ):
+                position = Position(
+                    x,
+                    y,
+                )
+
+                tile = (
+                    self.engine.world.tile_at(
+                        position
+                    )
+                )
+
+                colors = {
+                    TileType.EMPTY: "#E8F5E9",
+                    TileType.WALL: "#5D4037",
+                    TileType.WATER: "#81D4FA",
+                    TileType.FLOWER: "#F8BBD0",
+                    TileType.STATION: "#90CAF9",
+                    TileType.REST_AREA: "#C5E1A5",
+                }
+
+                self.canvas.create_rectangle(
+                    x * CELL_SIZE,
+                    y * CELL_SIZE,
+                    (x + 1) * CELL_SIZE,
+                    (y + 1) * CELL_SIZE,
+                    fill=colors[tile],
+                    outline="#CCCCCC",
+                )
+
+        for trash in (
+            self.engine.trash_items.values()
+        ):
+            x = trash.position.x
+            y = trash.position.y
+
+            self.canvas.create_oval(
+                x * CELL_SIZE + 7,
+                y * CELL_SIZE + 7,
+                (x + 1) * CELL_SIZE - 7,
+                (y + 1) * CELL_SIZE - 7,
+                fill=trash.kind.color,
+            )
+
+        for agent in (
+            self.engine.agents
+        ):
+            x = agent.position.x
+            y = agent.position.y
+
+            self.canvas.create_oval(
+                x * CELL_SIZE + 3,
+                y * CELL_SIZE + 3,
+                (x + 1) * CELL_SIZE - 3,
+                (y + 1) * CELL_SIZE - 3,
+                fill=agent.color,
+            )
+
+    def update(
+        self,
+    ) -> None:
+        self.engine.step()
+        self.draw()
+
+        self.info.delete(
+            "1.0",
+            tk.END,
+        )
+
+        self.info.insert(
+            tk.END,
+            (
+                f"현재 턴: "
+                f"{self.engine.turn}\n"
+                f"남은 쓰레기: "
+                f"{len(self.engine.trash_items)}개\n\n"
+            ),
+        )
+
+        for agent in (
+            self.engine.agents
+        ):
+            self.info.insert(
+                tk.END,
+                agent.status_text()
+                + "\n\n",
+            )
+
+        if (
+            self.engine.turn
+            < self.engine.config.max_turns
+        ):
+            self.root.after(
+                self.engine.config.tick_delay,
+                self.update,
+            )
+
+
+def main(
+) -> None:
+    root = tk.Tk()
+
+    SimulationApp(
+        root
+    )
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
