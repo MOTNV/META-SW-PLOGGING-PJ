@@ -1132,7 +1132,9 @@ class RecyclingBin:
                 0,
             ),
         )
-    @dataclass
+
+
+@dataclass
 class RecyclingStation:
     station_id: int
 
@@ -1421,7 +1423,8 @@ class EnvironmentState:
             4,
             vision,
         )
-        def spawn_multiplier(
+
+    def spawn_multiplier(
         self,
     ) -> float:
         multiplier = 1.0
@@ -1548,7 +1551,8 @@ class EnvironmentState:
             )
 
         return events
-        def to_dict(
+
+    def to_dict(
         self,
     ) -> Dict[str, Any]:
         return {
@@ -1840,7 +1844,8 @@ class SimulationStatistics:
                 self.highest_trash_count
             ),
         }
-        @classmethod
+
+    @classmethod
     def from_dict(
         cls,
         data: Dict[str, Any],
@@ -1895,7 +1900,9 @@ class SimulationStatistics:
                 0,
             ),
         )
-    @dataclass
+
+
+@dataclass
 class CleanerAgent:
     agent_id: int
 
@@ -2203,8 +2210,8 @@ class CleanerAgent:
         )
 
         return recovered_energy
-    
-        def continue_resting(
+
+    def continue_resting(
         self,
         recovery_amount: int,
     ) -> int:
@@ -2275,11 +2282,7 @@ class CleanerAgent:
             f"체력: "
             f"{self.energy}/"
             f"{self.maximum_energy}\n"
-            f"체력 막대: "
-            f"{create_progress_bar("
-            f"self.energy, "
-            f"self.maximum_energy"
-            f")}\n"
+            f"체력 막대: {create_progress_bar(self.energy, self.maximum_energy)}\n"
             f"가방: "
             f"{self.bag.total_weight}/"
             f"{self.bag.capacity}\n"
@@ -2334,7 +2337,8 @@ class CleanerAgent:
                 self.idle_turns
             ),
         }
-        @classmethod
+
+    @classmethod
     def from_dict(
         cls,
         data: Dict[str, Any],
@@ -2400,7 +2404,8 @@ class CleanerAgent:
                 {},
             )
         )
-                agent.score = safe_int(
+
+        agent.score = safe_int(
             data.get("score"),
             0,
         )
