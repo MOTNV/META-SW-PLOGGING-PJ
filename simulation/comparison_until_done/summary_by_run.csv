@@ -1,0 +1,4 @@
+﻿strategy,run,agentCount,elapsedTimeSeconds,initialTrashMass,collectedTrashMass,remainingTrashMass,collectionRate,totalTravelDistanceMeters,totalIdleTimeSeconds,midpointIdleRate,averageZoneImbalance,finalZoneImbalance,allTrashCollected
+random,0,20,1868.0,1714,1714,0,1.0,27524.31556752145,9795.0,0.9268115942028985,389.8794323070379,0.0,True
+trash_priority,0,20,1593.0,1714,1714,0,1.0,24824.083090822423,5755.0,0.0,611.4973692979577,0.0,True
+uniform,0,20,1647.0,1714,1714,0,1.0,24120.4565779798,8954.0,0.0,1249.869141863876,0.0,True
