@@ -1,0 +1,112 @@
+{
+  "description": "Manual movement rules for campus plogging simulation. Edit this file first when a place should be treated as walkable, blocked, or excluded.",
+  "pickupAccessRadiusMeters": 120.0,
+  "blockedClearanceMeters": 0.0,
+  "allowOffPathPickup": true,
+  "blockOsmBuildings": true,
+  "blockOsmBlockedAreas": true,
+  "manualBlockedAreas": [
+    {
+      "id": "example_blocked_area",
+      "name": "Example only - replace with real blocked coordinates",
+      "enabled": false,
+      "points": [
+        { "latitude": 35.9450, "longitude": 126.6810 },
+        { "latitude": 35.9450, "longitude": 126.6812 },
+        { "latitude": 35.9452, "longitude": 126.6812 },
+        { "latitude": 35.9452, "longitude": 126.6810 }
+      ]
+    },
+    {
+      "id": "manualBlockedAreas_20260527091243",
+      "name": "",
+      "enabled": true,
+      "points": [
+        { "latitude": 35.94962745, "longitude": 126.67978764 },
+        { "latitude": 35.94861121, "longitude": 126.67972326 },
+        { "latitude": 35.94858516, "longitude": 126.68057084 },
+        { "latitude": 35.94869807, "longitude": 126.6805923 },
+        { "latitude": 35.94864596, "longitude": 126.68086052 },
+        { "latitude": 35.94900207, "longitude": 126.68088198 },
+        { "latitude": 35.94941899, "longitude": 126.68083906 },
+        { "latitude": 35.94941031, "longitude": 126.6805923 },
+        { "latitude": 35.94960139, "longitude": 126.68062449 }
+      ]
+    },
+    {
+      "id": "manualBlockedAreas_20260527091403",
+      "name": "",
+      "enabled": true,
+      "points": [
+        { "latitude": 35.9444681, "longitude": 126.68257713 },
+        { "latitude": 35.94373849, "longitude": 126.68250203 },
+        { "latitude": 35.94369506, "longitude": 126.68294191 },
+        { "latitude": 35.94442467, "longitude": 126.6829741 }
+      ]
+    },
+    {
+      "id": "manualBlockedAreas_20260527091436",
+      "name": "",
+      "enabled": true,
+      "points": [
+        { "latitude": 35.94268751, "longitude": 126.68403625 },
+        { "latitude": 35.94261803, "longitude": 126.68384314 },
+        { "latitude": 35.94252249, "longitude": 126.68392897 },
+        { "latitude": 35.94248774, "longitude": 126.68387532 },
+        { "latitude": 35.94161048, "longitude": 126.6845727 },
+        { "latitude": 35.94166259, "longitude": 126.68480873 },
+        { "latitude": 35.94267883, "longitude": 126.68422937 }
+      ]
+    }
+  ],
+  "manualPickupOnlyAreas": [
+    {
+      "id": "example_pickup_only_area",
+      "name": "Example only - replace with grass/slope coordinates",
+      "enabled": false,
+      "points": [
+        { "latitude": 35.9465, "longitude": 126.6815 },
+        { "latitude": 35.9465, "longitude": 126.6817 },
+        { "latitude": 35.9467, "longitude": 126.6817 },
+        { "latitude": 35.9467, "longitude": 126.6815 }
+      ]
+    }
+  ],
+  "manualAllowedAreas": [
+    {
+      "id": "example_allowed_area",
+      "name": "Example only - replace with real grass/open-area coordinates",
+      "enabled": false,
+      "points": [
+        { "latitude": 35.9460, "longitude": 126.6820 },
+        { "latitude": 35.9460, "longitude": 126.6822 },
+        { "latitude": 35.9462, "longitude": 126.6822 },
+        { "latitude": 35.9462, "longitude": 126.6820 }
+      ]
+    },
+    {
+      "id": "allowed_parking_natural_science_north_20260528",
+      "name": "Natural science north parking/open paved area",
+      "enabled": true,
+      "points": [
+        { "latitude": 35.94868, "longitude": 126.68230 },
+        { "latitude": 35.94868, "longitude": 126.68322 },
+        { "latitude": 35.94778, "longitude": 126.68322 },
+        { "latitude": 35.94778, "longitude": 126.68230 }
+      ]
+    }
+  ],
+  "manualExcludedTrashAreas": [
+    {
+      "id": "example_excluded_trash_area",
+      "name": "Example only - trash points inside this polygon are ignored",
+      "enabled": false,
+      "points": [
+        { "latitude": 35.9470, "longitude": 126.6830 },
+        { "latitude": 35.9470, "longitude": 126.6832 },
+        { "latitude": 35.9472, "longitude": 126.6832 },
+        { "latitude": 35.9472, "longitude": 126.6830 }
+      ]
+    }
+  ]
+}

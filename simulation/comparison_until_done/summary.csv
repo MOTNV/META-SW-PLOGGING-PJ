@@ -1,0 +1,4 @@
+﻿strategy,runs,agentCount,collectionRateMean,collectionRateStd,remainingTrashMassMean,remainingTrashMassStd,collectedTrashMassMean,collectedTrashMassStd,totalTravelDistanceMetersMean,totalTravelDistanceMetersStd,totalIdleTimeSecondsMean,totalIdleTimeSecondsStd,midpointIdleRateMean,midpointIdleRateStd,averageZoneImbalanceMean,averageZoneImbalanceStd,finalZoneImbalanceMean,finalZoneImbalanceStd
+random,1,20,1.0,0.0,0.0,0.0,1714.0,0.0,27524.31556752145,0.0,9795.0,0.0,0.9268115942028985,0.0,389.8794323070379,0.0,0.0,0.0
+trash_priority,1,20,1.0,0.0,0.0,0.0,1714.0,0.0,24824.083090822423,0.0,5755.0,0.0,0.0,0.0,611.4973692979577,0.0,0.0,0.0
+uniform,1,20,1.0,0.0,0.0,0.0,1714.0,0.0,24120.4565779798,0.0,8954.0,0.0,0.0,0.0,1249.869141863876,0.0,0.0,0.0
