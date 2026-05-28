@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>오염도 지도</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <style>
+    body { margin:0; font-family:"Segoe UI","Malgun Gothic",sans-serif; }
+    #map { width:100vw; height:100vh; }
+    .panel { position:absolute; top:16px; left:16px; z-index:1000; background:rgba(255,255,255,0.96); padding:14px 16px; border-radius:14px; max-width:360px; box-shadow:0 10px 24px rgba(0,0,0,0.1); }
+    .panel h1 { margin:0 0 8px; font-size:22px; }
+    .panel p { margin:0; line-height:1.45; color:#445; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>지역별 오염도</h1>
+    <p>기본은 자동 격자 기반입니다. `REGION_GEOJSON_PATH`를 지정하면 사용자가 정한 지역 경계로 통계가 나옵니다.</p>
+  </div>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    const regions = [{"name": "grid_23964_84455", "type": "grid", "image_count": 161, "quantity_sum": 227, "weighted_pollution": 245, "top_label": "담배꽁초", "label_totals": {"플라스틱류": 12, "비닐류": 17, "담배꽁초": 132, "종이류": 9, "일반쓰레기": 52, "캔/금속류": 5}, "bounds": {"min_lat": 35.946, "max_lat": 35.9475, "min_lon": 126.6825, "max_lon": 126.684}}, {"name": "grid_23961_84454", "type": "grid", "image_count": 131, "quantity_sum": 178, "weighted_pollution": 209, "top_label": "담배꽁초", "label_totals": {"일반쓰레기": 25, "담배꽁초": 78, "종이류": 28, "캔/금속류": 6, "플라스틱류": 23, "비닐류": 14, "미라벨": 0, "대형/수거불가": 4}, "bounds": {"min_lat": 35.9415, "max_lat": 35.943, "min_lon": 126.681, "max_lon": 126.68249999999999}}, {"name": "grid_23961_84455", "type": "grid", "image_count": 126, "quantity_sum": 179, "weighted_pollution": 199, "top_label": "담배꽁초", "label_totals": {"대형/수거불가": 5, "일반쓰레기": 38, "캔/금속류": 9, "담배꽁초": 72, "비닐류": 16, "플라스틱류": 19, "스티로폼": 2, "종이류": 15, "유리류": 3}, "bounds": {"min_lat": 35.9415, "max_lat": 35.943, "min_lon": 126.6825, "max_lon": 126.684}}, {"name": "grid_23966_84453", "type": "grid", "image_count": 74, "quantity_sum": 115, "weighted_pollution": 174, "top_label": "일반쓰레기", "label_totals": {"플라스틱류": 12, "일반쓰레기": 90, "유리류": 1, "비닐류": 3, "스티로폼": 6, "캔/금속류": 2, "담배꽁초": 1}, "bounds": {"min_lat": 35.949, "max_lat": 35.9505, "min_lon": 126.6795, "max_lon": 126.681}}, {"name": "grid_23965_84455", "type": "grid", "image_count": 92, "quantity_sum": 107, "weighted_pollution": 121, "top_label": "일반쓰레기", "label_totals": {"담배꽁초": 37, "일반쓰레기": 53, "비닐류": 5, "미라벨": 0, "플라스틱류": 6, "종이류": 4, "스티로폼": 1, "캔/금속류": 1}, "bounds": {"min_lat": 35.9475, "max_lat": 35.949, "min_lon": 126.6825, "max_lon": 126.684}}, {"name": "grid_23965_84453", "type": "grid", "image_count": 5, "quantity_sum": 78, "weighted_pollution": 120, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 44, "담배꽁초": 30, "플라스틱류": 4}, "bounds": {"min_lat": 35.9475, "max_lat": 35.949, "min_lon": 126.6795, "max_lon": 126.681}}, {"name": "grid_23962_84455", "type": "grid", "image_count": 60, "quantity_sum": 78, "weighted_pollution": 86, "top_label": "담배꽁초", "label_totals": {"담배꽁초": 42, "일반쓰레기": 8, "플라스틱류": 11, "종이류": 12, "비닐류": 3, "대형/수거불가": 1, "캔/금속류": 1}, "bounds": {"min_lat": 35.943, "max_lat": 35.9445, "min_lon": 126.6825, "max_lon": 126.684}}, {"name": "grid_23962_84454", "type": "grid", "image_count": 64, "quantity_sum": 68, "weighted_pollution": 81, "top_label": "담배꽁초", "label_totals": {"비닐류": 14, "담배꽁초": 26, "종이류": 13, "플라스틱류": 6, "캔/금속류": 4, "일반쓰레기": 3, "대형/수거불가": 2}, "bounds": {"min_lat": 35.943, "max_lat": 35.9445, "min_lon": 126.681, "max_lon": 126.68249999999999}}, {"name": "grid_23963_84455", "type": "grid", "image_count": 56, "quantity_sum": 72, "weighted_pollution": 78, "top_label": "담배꽁초", "label_totals": {"담배꽁초": 29, "일반쓰레기": 14, "플라스틱류": 7, "비닐류": 15, "캔/금속류": 1, "대형/수거불가": 1, "스티로폼": 1, "종이류": 4}, "bounds": {"min_lat": 35.9445, "max_lat": 35.946, "min_lon": 126.6825, "max_lon": 126.684}}, {"name": "grid_23963_84454", "type": "grid", "image_count": 56, "quantity_sum": 70, "weighted_pollution": 77, "top_label": "담배꽁초", "label_totals": {"비닐류": 15, "일반쓰레기": 6, "담배꽁초": 28, "플라스틱류": 5, "종이류": 8, "미라벨": 0, "스티로폼": 3, "캔/금속류": 3, "대형/수거불가": 2}, "bounds": {"min_lat": 35.9445, "max_lat": 35.946, "min_lon": 126.681, "max_lon": 126.68249999999999}}, {"name": "grid_23964_84456", "type": "grid", "image_count": 31, "quantity_sum": 50, "weighted_pollution": 56, "top_label": "담배꽁초", "label_totals": {"일반쓰레기": 5, "담배꽁초": 30, "비닐류": 7, "캔/금속류": 1, "스티로폼": 1, "플라스틱류": 3, "종이류": 3}, "bounds": {"min_lat": 35.946, "max_lat": 35.9475, "min_lon": 126.684, "max_lon": 126.68549999999999}}, {"name": "grid_23965_84456", "type": "grid", "image_count": 39, "quantity_sum": 52, "weighted_pollution": 55, "top_label": "담배꽁초", "label_totals": {"담배꽁초": 36, "일반쓰레기": 10, "종이류": 1, "스티로폼": 3, "비닐류": 2}, "bounds": {"min_lat": 35.9475, "max_lat": 35.949, "min_lon": 126.684, "max_lon": 126.68549999999999}}, {"name": "grid_23963_84456", "type": "grid", "image_count": 38, "quantity_sum": 40, "weighted_pollution": 44, "top_label": "일반쓰레기", "label_totals": {"담배꽁초": 6, "스티로폼": 1, "일반쓰레기": 11, "비닐류": 3, "종이류": 11, "플라스틱류": 8}, "bounds": {"min_lat": 35.9445, "max_lat": 35.946, "min_lon": 126.684, "max_lon": 126.68549999999999}}, {"name": "grid_23965_84454", "type": "grid", "image_count": 16, "quantity_sum": 37, "weighted_pollution": 37, "top_label": "담배꽁초", "label_totals": {"일반쓰레기": 15, "담배꽁초": 18, "비닐류": 1, "종이류": 2, "플라스틱류": 1}, "bounds": {"min_lat": 35.9475, "max_lat": 35.949, "min_lon": 126.681, "max_lon": 126.68249999999999}}, {"name": "grid_23962_84456", "type": "grid", "image_count": 29, "quantity_sum": 33, "weighted_pollution": 36, "top_label": "비닐류", "label_totals": {"비닐류": 13, "종이류": 6, "플라스틱류": 8, "담배꽁초": 2, "스티로폼": 1, "일반쓰레기": 3}, "bounds": {"min_lat": 35.943, "max_lat": 35.9445, "min_lon": 126.684, "max_lon": 126.68549999999999}}, {"name": "grid_23964_84454", "type": "grid", "image_count": 19, "quantity_sum": 25, "weighted_pollution": 25, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 14, "플라스틱류": 1, "비닐류": 5, "캔/금속류": 1, "담배꽁초": 4}, "bounds": {"min_lat": 35.946, "max_lat": 35.9475, "min_lon": 126.681, "max_lon": 126.68249999999999}}, {"name": "grid_23963_84452", "type": "grid", "image_count": 15, "quantity_sum": 16, "weighted_pollution": 24, "top_label": "플라스틱류", "label_totals": {"일반쓰레기": 4, "플라스틱류": 8, "캔/금속류": 1, "비닐류": 2, "유리류": 1}, "bounds": {"min_lat": 35.9445, "max_lat": 35.946, "min_lon": 126.678, "max_lon": 126.67949999999999}}, {"name": "grid_23961_84453", "type": "grid", "image_count": 9, "quantity_sum": 10, "weighted_pollution": 15, "top_label": "종이류", "label_totals": {"일반쓰레기": 2, "캔/금속류": 2, "대형/수거불가": 1, "미라벨": 0, "플라스틱류": 1, "종이류": 4}, "bounds": {"min_lat": 35.9415, "max_lat": 35.943, "min_lon": 126.6795, "max_lon": 126.681}}, {"name": "grid_23962_84452", "type": "grid", "image_count": 7, "quantity_sum": 7, "weighted_pollution": 8, "top_label": "플라스틱류", "label_totals": {"플라스틱류": 3, "종이류": 3, "일반쓰레기": 1}, "bounds": {"min_lat": 35.943, "max_lat": 35.9445, "min_lon": 126.678, "max_lon": 126.67949999999999}}, {"name": "grid_23964_84452", "type": "grid", "image_count": 5, "quantity_sum": 5, "weighted_pollution": 6, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 3, "플라스틱류": 2}, "bounds": {"min_lat": 35.946, "max_lat": 35.9475, "min_lon": 126.678, "max_lon": 126.67949999999999}}, {"name": "grid_23960_84455", "type": "grid", "image_count": 3, "quantity_sum": 4, "weighted_pollution": 4, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 4}, "bounds": {"min_lat": 35.94, "max_lat": 35.9415, "min_lon": 126.6825, "max_lon": 126.684}}, {"name": "grid_23961_84456", "type": "grid", "image_count": 4, "quantity_sum": 4, "weighted_pollution": 4, "top_label": "종이류", "label_totals": {"종이류": 1, "일반쓰레기": 1, "비닐류": 1, "담배꽁초": 1}, "bounds": {"min_lat": 35.9415, "max_lat": 35.943, "min_lon": 126.684, "max_lon": 126.68549999999999}}, {"name": "grid_23963_84453", "type": "grid", "image_count": 3, "quantity_sum": 2, "weighted_pollution": 3, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 1, "미라벨": 0, "플라스틱류": 1}, "bounds": {"min_lat": 35.9445, "max_lat": 35.946, "min_lon": 126.6795, "max_lon": 126.681}}, {"name": "grid_23962_84453", "type": "grid", "image_count": 2, "quantity_sum": 2, "weighted_pollution": 2, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 1, "비닐류": 1}, "bounds": {"min_lat": 35.943, "max_lat": 35.9445, "min_lon": 126.6795, "max_lon": 126.681}}, {"name": "grid_23966_84454", "type": "grid", "image_count": 1, "quantity_sum": 2, "weighted_pollution": 2, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 2}, "bounds": {"min_lat": 35.949, "max_lat": 35.9505, "min_lon": 126.681, "max_lon": 126.68249999999999}}, {"name": "grid_23960_84456", "type": "grid", "image_count": 1, "quantity_sum": 1, "weighted_pollution": 1, "top_label": "캔/금속류", "label_totals": {"캔/금속류": 1}, "bounds": {"min_lat": 35.94, "max_lat": 35.9415, "min_lon": 126.684, "max_lon": 126.68549999999999}}, {"name": "grid_23964_84453", "type": "grid", "image_count": 1, "quantity_sum": 1, "weighted_pollution": 1, "top_label": "비닐류", "label_totals": {"비닐류": 1}, "bounds": {"min_lat": 35.946, "max_lat": 35.9475, "min_lon": 126.6795, "max_lon": 126.681}}, {"name": "grid_23966_84452", "type": "grid", "image_count": 1, "quantity_sum": 1, "weighted_pollution": 1, "top_label": "일반쓰레기", "label_totals": {"일반쓰레기": 1}, "bounds": {"min_lat": 35.949, "max_lat": 35.9505, "min_lon": 126.678, "max_lon": 126.67949999999999}}];
+    const map = L.map('map').setView([35.945340, 126.682626], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const values = regions.map(r => r.weighted_pollution);
+    const maxValue = Math.max(...values, 1);
+    function colorForValue(v) {
+      const ratio = v / maxValue;
+      if (ratio > 0.75) return '#b10026';
+      if (ratio > 0.5) return '#e31a1c';
+      if (ratio > 0.25) return '#fc8d59';
+      if (ratio > 0.1) return '#fdcc8a';
+      return '#ffffcc';
+    }
+
+    regions.forEach(region => {
+      if (!region.bounds) return;
+      const bounds = [
+        [region.bounds.min_lat, region.bounds.min_lon],
+        [region.bounds.max_lat, region.bounds.max_lon]
+      ];
+      const rectangle = L.rectangle(bounds, {
+        color: colorForValue(region.weighted_pollution),
+        weight: 1.5,
+        fillOpacity: 0.38
+      }).addTo(map);
+      rectangle.bindPopup(`
+        <strong>${region.name}</strong><br>
+        총량: ${region.quantity_sum}<br>
+        오염도: ${region.weighted_pollution}<br>
+        이미지 수: ${region.image_count}<br>
+        주요 라벨: ${region.top_label || '-'}
+      `);
+    });
+  </script>
+</body>
+</html>
