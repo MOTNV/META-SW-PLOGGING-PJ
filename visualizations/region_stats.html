@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>지역별 통계</title>
+  <style>
+    body { margin:0; padding:24px; font-family:"Segoe UI","Malgun Gothic",sans-serif; background:#f6f7f4; color:#1f2d1a; }
+    h1 { margin:0 0 12px; }
+    p { color:#4d5b48; line-height:1.5; }
+    table { width:100%; border-collapse:collapse; background:#fff; border-radius:14px; overflow:hidden; }
+    th, td { padding:12px 14px; border-bottom:1px solid #e6ebe2; text-align:left; vertical-align:top; }
+    th { background:#edf3ea; }
+    tr:last-child td { border-bottom:0; }
+  </style>
+</head>
+<body>
+  <h1>지역별 통계</h1>
+  <p>지역은 GeoJSON 경계가 있으면 그 기준으로, 없으면 자동 격자 기준으로 묶습니다. 사용자가 직접 위치 구역을 지정하려면 `REGION_GEOJSON_PATH`에 폴리곤 파일을 넣으면 됩니다.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>지역</th>
+        <th>이미지 수</th>
+        <th>총 quantity</th>
+        <th>오염도</th>
+        <th>주요 라벨</th>
+        <th>라벨 합계</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>grid_23964_84455</td><td>161</td><td>227</td><td>245</td><td>담배꽁초</td><td>담배꽁초:132, 일반쓰레기:52, 비닐류:17, 플라스틱류:12, 종이류:9</td></tr>
+<tr><td>grid_23961_84454</td><td>131</td><td>178</td><td>209</td><td>담배꽁초</td><td>담배꽁초:78, 종이류:28, 일반쓰레기:25, 플라스틱류:23, 비닐류:14</td></tr>
+<tr><td>grid_23961_84455</td><td>126</td><td>179</td><td>199</td><td>담배꽁초</td><td>담배꽁초:72, 일반쓰레기:38, 플라스틱류:19, 비닐류:16, 종이류:15</td></tr>
+<tr><td>grid_23966_84453</td><td>74</td><td>115</td><td>174</td><td>일반쓰레기</td><td>일반쓰레기:90, 플라스틱류:12, 스티로폼:6, 비닐류:3, 캔/금속류:2</td></tr>
+<tr><td>grid_23965_84455</td><td>92</td><td>107</td><td>121</td><td>일반쓰레기</td><td>일반쓰레기:53, 담배꽁초:37, 플라스틱류:6, 비닐류:5, 종이류:4</td></tr>
+<tr><td>grid_23965_84453</td><td>5</td><td>78</td><td>120</td><td>일반쓰레기</td><td>일반쓰레기:44, 담배꽁초:30, 플라스틱류:4</td></tr>
+<tr><td>grid_23962_84455</td><td>60</td><td>78</td><td>86</td><td>담배꽁초</td><td>담배꽁초:42, 종이류:12, 플라스틱류:11, 일반쓰레기:8, 비닐류:3</td></tr>
+<tr><td>grid_23962_84454</td><td>64</td><td>68</td><td>81</td><td>담배꽁초</td><td>담배꽁초:26, 비닐류:14, 종이류:13, 플라스틱류:6, 캔/금속류:4</td></tr>
+<tr><td>grid_23963_84455</td><td>56</td><td>72</td><td>78</td><td>담배꽁초</td><td>담배꽁초:29, 비닐류:15, 일반쓰레기:14, 플라스틱류:7, 종이류:4</td></tr>
+<tr><td>grid_23963_84454</td><td>56</td><td>70</td><td>77</td><td>담배꽁초</td><td>담배꽁초:28, 비닐류:15, 종이류:8, 일반쓰레기:6, 플라스틱류:5</td></tr>
+<tr><td>grid_23964_84456</td><td>31</td><td>50</td><td>56</td><td>담배꽁초</td><td>담배꽁초:30, 비닐류:7, 일반쓰레기:5, 플라스틱류:3, 종이류:3</td></tr>
+<tr><td>grid_23965_84456</td><td>39</td><td>52</td><td>55</td><td>담배꽁초</td><td>담배꽁초:36, 일반쓰레기:10, 스티로폼:3, 비닐류:2, 종이류:1</td></tr>
+<tr><td>grid_23963_84456</td><td>38</td><td>40</td><td>44</td><td>일반쓰레기</td><td>일반쓰레기:11, 종이류:11, 플라스틱류:8, 담배꽁초:6, 비닐류:3</td></tr>
+<tr><td>grid_23965_84454</td><td>16</td><td>37</td><td>37</td><td>담배꽁초</td><td>담배꽁초:18, 일반쓰레기:15, 종이류:2, 비닐류:1, 플라스틱류:1</td></tr>
+<tr><td>grid_23962_84456</td><td>29</td><td>33</td><td>36</td><td>비닐류</td><td>비닐류:13, 플라스틱류:8, 종이류:6, 일반쓰레기:3, 담배꽁초:2</td></tr>
+<tr><td>grid_23964_84454</td><td>19</td><td>25</td><td>25</td><td>일반쓰레기</td><td>일반쓰레기:14, 비닐류:5, 담배꽁초:4, 플라스틱류:1, 캔/금속류:1</td></tr>
+<tr><td>grid_23963_84452</td><td>15</td><td>16</td><td>24</td><td>플라스틱류</td><td>플라스틱류:8, 일반쓰레기:4, 비닐류:2, 캔/금속류:1, 유리류:1</td></tr>
+<tr><td>grid_23961_84453</td><td>9</td><td>10</td><td>15</td><td>종이류</td><td>종이류:4, 일반쓰레기:2, 캔/금속류:2, 대형/수거불가:1, 플라스틱류:1</td></tr>
+<tr><td>grid_23962_84452</td><td>7</td><td>7</td><td>8</td><td>플라스틱류</td><td>플라스틱류:3, 종이류:3, 일반쓰레기:1</td></tr>
+<tr><td>grid_23964_84452</td><td>5</td><td>5</td><td>6</td><td>일반쓰레기</td><td>일반쓰레기:3, 플라스틱류:2</td></tr>
+<tr><td>grid_23960_84455</td><td>3</td><td>4</td><td>4</td><td>일반쓰레기</td><td>일반쓰레기:4</td></tr>
+<tr><td>grid_23961_84456</td><td>4</td><td>4</td><td>4</td><td>종이류</td><td>종이류:1, 일반쓰레기:1, 비닐류:1, 담배꽁초:1</td></tr>
+<tr><td>grid_23963_84453</td><td>3</td><td>2</td><td>3</td><td>일반쓰레기</td><td>일반쓰레기:1, 플라스틱류:1, 미라벨:0</td></tr>
+<tr><td>grid_23962_84453</td><td>2</td><td>2</td><td>2</td><td>일반쓰레기</td><td>일반쓰레기:1, 비닐류:1</td></tr>
+<tr><td>grid_23966_84454</td><td>1</td><td>2</td><td>2</td><td>일반쓰레기</td><td>일반쓰레기:2</td></tr>
+<tr><td>grid_23960_84456</td><td>1</td><td>1</td><td>1</td><td>캔/금속류</td><td>캔/금속류:1</td></tr>
+<tr><td>grid_23964_84453</td><td>1</td><td>1</td><td>1</td><td>비닐류</td><td>비닐류:1</td></tr>
+<tr><td>grid_23966_84452</td><td>1</td><td>1</td><td>1</td><td>일반쓰레기</td><td>일반쓰레기:1</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
