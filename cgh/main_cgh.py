@@ -3644,6 +3644,2529 @@ class SimulationEngine:
         return engine
 
 
+
+# ============================================================
+# 확장 시뮬레이션 기능
+# 시민, 구역, 돌발 상황, 업적, 도전 과제, 분석 기록을 관리한다.
+# ============================================================
+
+class CitizenMood(Enum):
+    HAPPY = "만족"
+    NORMAL = "보통"
+    TIRED = "피곤"
+    ANNOYED = "불쾌"
+    CURIOUS = "호기심"
+    WORRIED = "걱정"
+
+
+class CitizenAction(Enum):
+    WALKING = "산책"
+    RESTING = "휴식"
+    WATCHING = "관찰"
+    LEAVING = "퇴장"
+    LITTERING = "쓰레기 투기"
+    REPORTING = "신고"
+
+
+class ParkZoneType(Enum):
+    ENTRANCE = "입구"
+    PLAZA = "광장"
+    GARDEN = "정원"
+    PLAYGROUND = "놀이터"
+    PICNIC = "피크닉 구역"
+    LAKE = "호수 주변"
+    TRAIL = "산책로"
+    SERVICE = "관리 구역"
+
+
+class DifficultyLevel(Enum):
+    EASY = ("쉬움", 0.80)
+    NORMAL = ("보통", 1.00)
+    HARD = ("어려움", 1.25)
+    EXPERT = ("전문가", 1.55)
+
+    def __init__(self, label: str, multiplier: float) -> None:
+        self.label = label
+        self.multiplier = multiplier
+
+
+class IncidentKind(Enum):
+    OVERFLOW = "쓰레기통 포화"
+    CROWD = "인파 증가"
+    RAIN_DAMAGE = "비 피해"
+    WIND_SCATTER = "강풍 확산"
+    LOST_ITEM = "분실물 발견"
+    INJURED_CITIZEN = "시민 부상"
+    BROKEN_PATH = "산책로 파손"
+    FESTIVAL = "행사 개최"
+
+
+@dataclass
+class ParkZone:
+    zone_id: int
+    name: str
+    zone_type: ParkZoneType
+    left: int
+    top: int
+    right: int
+    bottom: int
+    cleanliness: float = 100.0
+    visitor_count: int = 0
+    trash_pressure: float = 1.0
+
+    def contains(self, position: Position) -> bool:
+        return self.left <= position.x <= self.right and self.top <= position.y <= self.bottom
+
+    def center(self) -> Position:
+        return Position((self.left + self.right) // 2, (self.top + self.bottom) // 2)
+
+    def update_cleanliness(self, trash_count: int) -> None:
+        target = max(0.0, 100.0 - trash_count * 4.0)
+        self.cleanliness += (target - self.cleanliness) * 0.15
+        self.cleanliness = max(0.0, min(100.0, self.cleanliness))
+
+    def status_text(self) -> str:
+        return (
+            f"{self.name} ({self.zone_type.value})\n"
+            f"청결도: {self.cleanliness:.1f}\n"
+            f"방문자: {self.visitor_count}명\n"
+            f"쓰레기 압력: {self.trash_pressure:.2f}"
+        )
+
+
+@dataclass
+class Citizen:
+    citizen_id: int
+    name: str
+    position: Position
+    color: str
+    mood: CitizenMood = CitizenMood.NORMAL
+    action: CitizenAction = CitizenAction.WALKING
+    destination: Optional[Position] = None
+    path: List[Position] = field(default_factory=list)
+    patience: int = 100
+    satisfaction: float = 70.0
+    litter_probability: float = 0.006
+    visited_zones: Set[int] = field(default_factory=set)
+    steps: int = 0
+
+    def change_mood(self, cleanliness: float) -> None:
+        if cleanliness >= 90:
+            self.mood = CitizenMood.HAPPY
+            self.satisfaction = min(100.0, self.satisfaction + 0.6)
+        elif cleanliness >= 65:
+            self.mood = CitizenMood.NORMAL
+        elif cleanliness >= 40:
+            self.mood = CitizenMood.WORRIED
+            self.satisfaction = max(0.0, self.satisfaction - 0.5)
+        else:
+            self.mood = CitizenMood.ANNOYED
+            self.satisfaction = max(0.0, self.satisfaction - 1.2)
+
+    def should_litter(self, difficulty: DifficultyLevel) -> bool:
+        mood_factor = 1.8 if self.mood == CitizenMood.ANNOYED else 1.0
+        return random.random() < self.litter_probability * difficulty.multiplier * mood_factor
+
+    def status_text(self) -> str:
+        return (
+            f"{self.name}\n"
+            f"행동: {self.action.value}\n"
+            f"기분: {self.mood.value}\n"
+            f"만족도: {self.satisfaction:.1f}\n"
+            f"이동 거리: {self.steps}"
+        )
+
+
+@dataclass
+class ParkIncident:
+    incident_id: int
+    kind: IncidentKind
+    position: Position
+    created_turn: int
+    severity: int
+    duration: int
+    resolved: bool = False
+
+    def tick(self) -> None:
+        if self.resolved:
+            return
+        self.duration -= 1
+        if self.duration <= 0:
+            self.resolved = True
+
+    def description(self) -> str:
+        return (
+            f"{self.kind.value} / 위치 ({self.position.x}, {self.position.y}) / "
+            f"심각도 {self.severity} / 남은 시간 {max(0, self.duration)}"
+        )
+
+
+@dataclass
+class AchievementDefinition:
+    achievement_id: str
+    title: str
+    description: str
+    metric: str
+    target: int
+    reward: int
+
+
+
+@dataclass
+class AchievementProgress:
+    definition: AchievementDefinition
+    current: int = 0
+    unlocked: bool = False
+    unlocked_turn: Optional[int] = None
+
+    def update(self, value: int, turn: int) -> bool:
+        if self.unlocked:
+            return False
+        self.current = max(self.current, value)
+        if self.current >= self.definition.target:
+            self.unlocked = True
+            self.unlocked_turn = turn
+            return True
+        return False
+
+
+@dataclass
+class DailyChallenge:
+    challenge_id: str
+    title: str
+    metric: str
+    target: int
+    reward: int
+    progress: int = 0
+    completed: bool = False
+
+    def update(self, value: int) -> bool:
+        if self.completed:
+            return False
+        self.progress = max(self.progress, value)
+        if self.progress >= self.target:
+            self.completed = True
+            return True
+        return False
+
+
+@dataclass
+class AnalyticsSnapshot:
+    turn: int
+    trash_count: int
+    total_score: int
+    total_pickups: int
+    total_recycled: int
+    average_energy: float
+    average_cleanliness: float
+    citizen_satisfaction: float
+    active_incidents: int
+
+
+
+class ZoneManager:
+    def __init__(self, world: WorldMap) -> None:
+        self.world = world
+        self.zones: List[ParkZone] = []
+        self.create_default_zones()
+
+    def create_default_zones(self) -> None:
+        self.zones.clear()
+        half_x = self.world.width // 2
+        half_y = self.world.height // 2
+        definitions = [
+            ("북서 정원", ParkZoneType.GARDEN, 1, 1, half_x - 1, half_y - 1, 0.85),
+            ("북동 광장", ParkZoneType.PLAZA, half_x, 1, self.world.width - 2, half_y - 1, 1.25),
+            ("남서 피크닉장", ParkZoneType.PICNIC, 1, half_y, half_x - 1, self.world.height - 2, 1.35),
+            ("남동 산책로", ParkZoneType.TRAIL, half_x, half_y, self.world.width - 2, self.world.height - 2, 1.00),
+        ]
+        for index, item in enumerate(definitions, start=1):
+            name, zone_type, left, top, right, bottom, pressure = item
+            self.zones.append(ParkZone(index, name, zone_type, left, top, right, bottom, trash_pressure=pressure))
+
+    def zone_at(self, position: Position) -> Optional[ParkZone]:
+        return next((zone for zone in self.zones if zone.contains(position)), None)
+
+    def update(self, trash_items: Dict[int, Trash], citizens: List[Citizen]) -> None:
+        for zone in self.zones:
+            trash_count = sum(1 for trash in trash_items.values() if zone.contains(trash.position))
+            zone.visitor_count = sum(1 for citizen in citizens if zone.contains(citizen.position))
+            zone.update_cleanliness(trash_count)
+
+    def average_cleanliness(self) -> float:
+        if not self.zones:
+            return 100.0
+        return sum(zone.cleanliness for zone in self.zones) / len(self.zones)
+
+    def dirtiest_zone(self) -> Optional[ParkZone]:
+        return min(self.zones, key=lambda zone: zone.cleanliness) if self.zones else None
+
+
+class CitizenManager:
+    COLORS = ["#8D6E63", "#EC407A", "#26A69A", "#7E57C2", "#78909C", "#D4E157"]
+    NAMES = ["시민A", "시민B", "시민C", "시민D", "시민E", "시민F", "시민G", "시민H"]
+
+    def __init__(self, world: WorldMap, pathfinder: PathFinder, zone_manager: ZoneManager) -> None:
+        self.world = world
+        self.pathfinder = pathfinder
+        self.zone_manager = zone_manager
+        self.citizens: List[Citizen] = []
+        self.next_citizen_id = 1
+        self.total_littered = 0
+        self.total_reports = 0
+
+    def create_citizens(self, count: int, blocked: Set[Position]) -> None:
+        for _ in range(count):
+            position = self.world.random_empty_position(blocked)
+            if position is None:
+                break
+            citizen = Citizen(
+                citizen_id=self.next_citizen_id,
+                name=self.NAMES[(self.next_citizen_id - 1) % len(self.NAMES)],
+                position=position,
+                color=self.COLORS[(self.next_citizen_id - 1) % len(self.COLORS)],
+                litter_probability=random.uniform(0.003, 0.012),
+            )
+            self.citizens.append(citizen)
+            blocked.add(position)
+            self.next_citizen_id += 1
+
+    def occupied_positions(self) -> Set[Position]:
+        return {citizen.position for citizen in self.citizens}
+
+    def choose_destination(self, citizen: Citizen) -> None:
+        candidates = [zone.center() for zone in self.zone_manager.zones]
+        random.shuffle(candidates)
+        for destination in candidates:
+            path = self.pathfinder.find_path(citizen.position, destination)
+            if path:
+                citizen.destination = destination
+                citizen.path = path
+                citizen.action = CitizenAction.WALKING
+                return
+        citizen.action = CitizenAction.RESTING
+
+    def update(self, engine: "ExtendedSimulationEngine") -> None:
+        occupied = self.occupied_positions()
+        for citizen in self.citizens:
+            zone = self.zone_manager.zone_at(citizen.position)
+            if zone is not None:
+                citizen.visited_zones.add(zone.zone_id)
+                citizen.change_mood(zone.cleanliness)
+            if citizen.should_litter(engine.difficulty):
+                if len(engine.trash_items) < MAX_TRASH_ON_MAP and engine.world.tile_at(citizen.position) == TileType.EMPTY:
+                    trash = Trash(engine.next_trash_id, TrashKind.random_kind(), citizen.position, engine.turn)
+                    engine.trash_items[trash.trash_id] = trash
+                    engine.next_trash_id += 1
+                    self.total_littered += 1
+                    citizen.action = CitizenAction.LITTERING
+                    engine.add_event(EventType.TRASH_SPAWN, f"{citizen.name}이(가) 쓰레기를 버렸습니다.")
+                    continue
+            if not citizen.path or citizen.destination == citizen.position:
+                self.choose_destination(citizen)
+            if citizen.path:
+                next_position = citizen.path.pop(0)
+                if next_position not in occupied and engine.world.is_walkable(next_position):
+                    occupied.discard(citizen.position)
+                    citizen.position = next_position
+                    occupied.add(next_position)
+                    citizen.steps += 1
+            citizen.patience = max(0, citizen.patience - 1)
+
+    def average_satisfaction(self) -> float:
+        if not self.citizens:
+            return 100.0
+        return sum(citizen.satisfaction for citizen in self.citizens) / len(self.citizens)
+
+
+class IncidentManager:
+    def __init__(self) -> None:
+        self.incidents: List[ParkIncident] = []
+        self.next_incident_id = 1
+        self.resolved_count = 0
+
+    def maybe_create(self, engine: "ExtendedSimulationEngine") -> Optional[ParkIncident]:
+        chance = 0.004 * engine.difficulty.multiplier
+        if random.random() >= chance:
+            return None
+        position = engine.world.random_empty_position(engine.occupied_positions())
+        if position is None:
+            return None
+        incident = ParkIncident(
+            incident_id=self.next_incident_id,
+            kind=random.choice(list(IncidentKind)),
+            position=position,
+            created_turn=engine.turn,
+            severity=random.randint(1, 5),
+            duration=random.randint(25, 90),
+        )
+        self.incidents.append(incident)
+        self.next_incident_id += 1
+        engine.add_event(EventType.WARNING, f"돌발 상황 발생: {incident.description()}")
+        return incident
+
+    def update(self, engine: "ExtendedSimulationEngine") -> None:
+        self.maybe_create(engine)
+        for incident in self.incidents:
+            was_resolved = incident.resolved
+            incident.tick()
+            if incident.resolved and not was_resolved:
+                self.resolved_count += 1
+                engine.add_event(EventType.INFO, f"돌발 상황 종료: {incident.kind.value}")
+        self.incidents = [incident for incident in self.incidents if not incident.resolved or engine.turn - incident.created_turn < 10]
+
+    def active_count(self) -> int:
+        return sum(1 for incident in self.incidents if not incident.resolved)
+
+
+class AnalyticsManager:
+    def __init__(self) -> None:
+        self.snapshots: List[AnalyticsSnapshot] = []
+        self.max_snapshots = 1000
+
+    def capture(self, engine: "ExtendedSimulationEngine") -> None:
+        if engine.turn % 10 != 0:
+            return
+        average_energy = calculate_average(agent.energy for agent in engine.agents)
+        snapshot = AnalyticsSnapshot(
+            turn=engine.turn,
+            trash_count=len(engine.trash_items),
+            total_score=engine.statistics.total_score,
+            total_pickups=engine.statistics.total_pickups,
+            total_recycled=engine.statistics.total_recycled,
+            average_energy=average_energy,
+            average_cleanliness=engine.zone_manager.average_cleanliness(),
+            citizen_satisfaction=engine.citizen_manager.average_satisfaction(),
+            active_incidents=engine.incident_manager.active_count(),
+        )
+        self.snapshots.append(snapshot)
+        if len(self.snapshots) > self.max_snapshots:
+            self.snapshots = self.snapshots[-self.max_snapshots:]
+
+    def trend(self, attribute: str, count: int = 10) -> float:
+        data = self.snapshots[-count:]
+        if len(data) < 2:
+            return 0.0
+        first = float(getattr(data[0], attribute))
+        last = float(getattr(data[-1], attribute))
+        return (last - first) / max(1, len(data) - 1)
+
+    def report(self) -> str:
+        if not self.snapshots:
+            return "분석 데이터가 아직 없습니다."
+        latest = self.snapshots[-1]
+        return (
+            f"분석 턴: {latest.turn}\n"
+            f"평균 청결도: {latest.average_cleanliness:.1f}\n"
+            f"시민 만족도: {latest.citizen_satisfaction:.1f}\n"
+            f"쓰레기 추세: {self.trend('trash_count'):+.2f}\n"
+            f"점수 추세: {self.trend('total_score'):+.2f}"
+        )
+
+
+class AchievementManager:
+    def __init__(self) -> None:
+        self.progress: Dict[str, AchievementProgress] = {}
+        for definition in ACHIEVEMENT_DEFINITIONS:
+            self.progress[definition.achievement_id] = AchievementProgress(definition)
+
+    def metric_value(self, engine: "ExtendedSimulationEngine", metric: str) -> int:
+        values = {
+            "pickups": engine.statistics.total_pickups,
+            "recycled": engine.statistics.total_recycled,
+            "score": engine.statistics.total_score,
+            "moves": engine.statistics.total_moves,
+            "rests": engine.statistics.total_rests,
+            "turn": engine.turn,
+            "citizens": len(engine.citizen_manager.citizens),
+            "incidents": engine.incident_manager.resolved_count,
+            "spawned": engine.environment.total_spawned_trash,
+            "cleanliness": int(engine.zone_manager.average_cleanliness()),
+        }
+        return int(values.get(metric, 0))
+
+    def update(self, engine: "ExtendedSimulationEngine") -> None:
+        for item in self.progress.values():
+            value = self.metric_value(engine, item.definition.metric)
+            if item.update(value, engine.turn):
+                for agent in engine.agents:
+                    agent.score += item.definition.reward
+                engine.add_event(EventType.INFO, f"업적 달성: {item.definition.title}")
+
+    def unlocked_count(self) -> int:
+        return sum(1 for item in self.progress.values() if item.unlocked)
+
+    def report(self, limit: int = 12) -> str:
+        unlocked = [item for item in self.progress.values() if item.unlocked]
+        unlocked.sort(key=lambda item: item.unlocked_turn or 0)
+        if not unlocked:
+            return "달성한 업적이 없습니다."
+        return "\n".join(f"- {item.definition.title} ({item.unlocked_turn}턴)" for item in unlocked[-limit:])
+
+
+ACHIEVEMENT_DEFINITIONS: List[AchievementDefinition] = [
+    AchievementDefinition(
+        achievement_id="achievement_001",
+        title="수거 전문가 1",
+        description="수거 관련 목표 20을 달성합니다.",
+        metric="pickups",
+        target=20,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_002",
+        title="수거 전문가 2",
+        description="수거 관련 목표 40을 달성합니다.",
+        metric="pickups",
+        target=40,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_003",
+        title="수거 전문가 3",
+        description="수거 관련 목표 60을 달성합니다.",
+        metric="pickups",
+        target=60,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_004",
+        title="수거 전문가 4",
+        description="수거 관련 목표 80을 달성합니다.",
+        metric="pickups",
+        target=80,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_005",
+        title="수거 전문가 5",
+        description="수거 관련 목표 100을 달성합니다.",
+        metric="pickups",
+        target=100,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_006",
+        title="수거 전문가 6",
+        description="수거 관련 목표 120을 달성합니다.",
+        metric="pickups",
+        target=120,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_007",
+        title="수거 전문가 7",
+        description="수거 관련 목표 140을 달성합니다.",
+        metric="pickups",
+        target=140,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_008",
+        title="수거 전문가 8",
+        description="수거 관련 목표 160을 달성합니다.",
+        metric="pickups",
+        target=160,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_009",
+        title="수거 전문가 9",
+        description="수거 관련 목표 180을 달성합니다.",
+        metric="pickups",
+        target=180,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_010",
+        title="수거 전문가 10",
+        description="수거 관련 목표 200을 달성합니다.",
+        metric="pickups",
+        target=200,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_011",
+        title="수거 전문가 11",
+        description="수거 관련 목표 220을 달성합니다.",
+        metric="pickups",
+        target=220,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_012",
+        title="수거 전문가 12",
+        description="수거 관련 목표 240을 달성합니다.",
+        metric="pickups",
+        target=240,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_013",
+        title="수거 전문가 13",
+        description="수거 관련 목표 260을 달성합니다.",
+        metric="pickups",
+        target=260,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_014",
+        title="수거 전문가 14",
+        description="수거 관련 목표 280을 달성합니다.",
+        metric="pickups",
+        target=280,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_015",
+        title="수거 전문가 15",
+        description="수거 관련 목표 300을 달성합니다.",
+        metric="pickups",
+        target=300,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_016",
+        title="수거 전문가 16",
+        description="수거 관련 목표 320을 달성합니다.",
+        metric="pickups",
+        target=320,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_017",
+        title="수거 전문가 17",
+        description="수거 관련 목표 340을 달성합니다.",
+        metric="pickups",
+        target=340,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_018",
+        title="수거 전문가 18",
+        description="수거 관련 목표 360을 달성합니다.",
+        metric="pickups",
+        target=360,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_019",
+        title="수거 전문가 19",
+        description="수거 관련 목표 380을 달성합니다.",
+        metric="pickups",
+        target=380,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_020",
+        title="수거 전문가 20",
+        description="수거 관련 목표 400을 달성합니다.",
+        metric="pickups",
+        target=400,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_021",
+        title="분리배출 전문가 1",
+        description="분리배출 관련 목표 15을 달성합니다.",
+        metric="recycled",
+        target=15,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_022",
+        title="분리배출 전문가 2",
+        description="분리배출 관련 목표 30을 달성합니다.",
+        metric="recycled",
+        target=30,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_023",
+        title="분리배출 전문가 3",
+        description="분리배출 관련 목표 45을 달성합니다.",
+        metric="recycled",
+        target=45,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_024",
+        title="분리배출 전문가 4",
+        description="분리배출 관련 목표 60을 달성합니다.",
+        metric="recycled",
+        target=60,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_025",
+        title="분리배출 전문가 5",
+        description="분리배출 관련 목표 75을 달성합니다.",
+        metric="recycled",
+        target=75,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_026",
+        title="분리배출 전문가 6",
+        description="분리배출 관련 목표 90을 달성합니다.",
+        metric="recycled",
+        target=90,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_027",
+        title="분리배출 전문가 7",
+        description="분리배출 관련 목표 105을 달성합니다.",
+        metric="recycled",
+        target=105,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_028",
+        title="분리배출 전문가 8",
+        description="분리배출 관련 목표 120을 달성합니다.",
+        metric="recycled",
+        target=120,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_029",
+        title="분리배출 전문가 9",
+        description="분리배출 관련 목표 135을 달성합니다.",
+        metric="recycled",
+        target=135,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_030",
+        title="분리배출 전문가 10",
+        description="분리배출 관련 목표 150을 달성합니다.",
+        metric="recycled",
+        target=150,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_031",
+        title="분리배출 전문가 11",
+        description="분리배출 관련 목표 165을 달성합니다.",
+        metric="recycled",
+        target=165,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_032",
+        title="분리배출 전문가 12",
+        description="분리배출 관련 목표 180을 달성합니다.",
+        metric="recycled",
+        target=180,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_033",
+        title="분리배출 전문가 13",
+        description="분리배출 관련 목표 195을 달성합니다.",
+        metric="recycled",
+        target=195,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_034",
+        title="분리배출 전문가 14",
+        description="분리배출 관련 목표 210을 달성합니다.",
+        metric="recycled",
+        target=210,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_035",
+        title="분리배출 전문가 15",
+        description="분리배출 관련 목표 225을 달성합니다.",
+        metric="recycled",
+        target=225,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_036",
+        title="분리배출 전문가 16",
+        description="분리배출 관련 목표 240을 달성합니다.",
+        metric="recycled",
+        target=240,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_037",
+        title="분리배출 전문가 17",
+        description="분리배출 관련 목표 255을 달성합니다.",
+        metric="recycled",
+        target=255,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_038",
+        title="분리배출 전문가 18",
+        description="분리배출 관련 목표 270을 달성합니다.",
+        metric="recycled",
+        target=270,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_039",
+        title="분리배출 전문가 19",
+        description="분리배출 관련 목표 285을 달성합니다.",
+        metric="recycled",
+        target=285,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_040",
+        title="분리배출 전문가 20",
+        description="분리배출 관련 목표 300을 달성합니다.",
+        metric="recycled",
+        target=300,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_041",
+        title="점수 전문가 1",
+        description="점수 관련 목표 250을 달성합니다.",
+        metric="score",
+        target=250,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_042",
+        title="점수 전문가 2",
+        description="점수 관련 목표 500을 달성합니다.",
+        metric="score",
+        target=500,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_043",
+        title="점수 전문가 3",
+        description="점수 관련 목표 750을 달성합니다.",
+        metric="score",
+        target=750,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_044",
+        title="점수 전문가 4",
+        description="점수 관련 목표 1000을 달성합니다.",
+        metric="score",
+        target=1000,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_045",
+        title="점수 전문가 5",
+        description="점수 관련 목표 1250을 달성합니다.",
+        metric="score",
+        target=1250,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_046",
+        title="점수 전문가 6",
+        description="점수 관련 목표 1500을 달성합니다.",
+        metric="score",
+        target=1500,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_047",
+        title="점수 전문가 7",
+        description="점수 관련 목표 1750을 달성합니다.",
+        metric="score",
+        target=1750,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_048",
+        title="점수 전문가 8",
+        description="점수 관련 목표 2000을 달성합니다.",
+        metric="score",
+        target=2000,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_049",
+        title="점수 전문가 9",
+        description="점수 관련 목표 2250을 달성합니다.",
+        metric="score",
+        target=2250,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_050",
+        title="점수 전문가 10",
+        description="점수 관련 목표 2500을 달성합니다.",
+        metric="score",
+        target=2500,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_051",
+        title="점수 전문가 11",
+        description="점수 관련 목표 2750을 달성합니다.",
+        metric="score",
+        target=2750,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_052",
+        title="점수 전문가 12",
+        description="점수 관련 목표 3000을 달성합니다.",
+        metric="score",
+        target=3000,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_053",
+        title="점수 전문가 13",
+        description="점수 관련 목표 3250을 달성합니다.",
+        metric="score",
+        target=3250,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_054",
+        title="점수 전문가 14",
+        description="점수 관련 목표 3500을 달성합니다.",
+        metric="score",
+        target=3500,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_055",
+        title="점수 전문가 15",
+        description="점수 관련 목표 3750을 달성합니다.",
+        metric="score",
+        target=3750,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_056",
+        title="점수 전문가 16",
+        description="점수 관련 목표 4000을 달성합니다.",
+        metric="score",
+        target=4000,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_057",
+        title="점수 전문가 17",
+        description="점수 관련 목표 4250을 달성합니다.",
+        metric="score",
+        target=4250,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_058",
+        title="점수 전문가 18",
+        description="점수 관련 목표 4500을 달성합니다.",
+        metric="score",
+        target=4500,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_059",
+        title="점수 전문가 19",
+        description="점수 관련 목표 4750을 달성합니다.",
+        metric="score",
+        target=4750,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_060",
+        title="점수 전문가 20",
+        description="점수 관련 목표 5000을 달성합니다.",
+        metric="score",
+        target=5000,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_061",
+        title="이동 전문가 1",
+        description="이동 관련 목표 200을 달성합니다.",
+        metric="moves",
+        target=200,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_062",
+        title="이동 전문가 2",
+        description="이동 관련 목표 400을 달성합니다.",
+        metric="moves",
+        target=400,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_063",
+        title="이동 전문가 3",
+        description="이동 관련 목표 600을 달성합니다.",
+        metric="moves",
+        target=600,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_064",
+        title="이동 전문가 4",
+        description="이동 관련 목표 800을 달성합니다.",
+        metric="moves",
+        target=800,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_065",
+        title="이동 전문가 5",
+        description="이동 관련 목표 1000을 달성합니다.",
+        metric="moves",
+        target=1000,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_066",
+        title="이동 전문가 6",
+        description="이동 관련 목표 1200을 달성합니다.",
+        metric="moves",
+        target=1200,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_067",
+        title="이동 전문가 7",
+        description="이동 관련 목표 1400을 달성합니다.",
+        metric="moves",
+        target=1400,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_068",
+        title="이동 전문가 8",
+        description="이동 관련 목표 1600을 달성합니다.",
+        metric="moves",
+        target=1600,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_069",
+        title="이동 전문가 9",
+        description="이동 관련 목표 1800을 달성합니다.",
+        metric="moves",
+        target=1800,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_070",
+        title="이동 전문가 10",
+        description="이동 관련 목표 2000을 달성합니다.",
+        metric="moves",
+        target=2000,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_071",
+        title="이동 전문가 11",
+        description="이동 관련 목표 2200을 달성합니다.",
+        metric="moves",
+        target=2200,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_072",
+        title="이동 전문가 12",
+        description="이동 관련 목표 2400을 달성합니다.",
+        metric="moves",
+        target=2400,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_073",
+        title="이동 전문가 13",
+        description="이동 관련 목표 2600을 달성합니다.",
+        metric="moves",
+        target=2600,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_074",
+        title="이동 전문가 14",
+        description="이동 관련 목표 2800을 달성합니다.",
+        metric="moves",
+        target=2800,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_075",
+        title="이동 전문가 15",
+        description="이동 관련 목표 3000을 달성합니다.",
+        metric="moves",
+        target=3000,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_076",
+        title="이동 전문가 16",
+        description="이동 관련 목표 3200을 달성합니다.",
+        metric="moves",
+        target=3200,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_077",
+        title="이동 전문가 17",
+        description="이동 관련 목표 3400을 달성합니다.",
+        metric="moves",
+        target=3400,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_078",
+        title="이동 전문가 18",
+        description="이동 관련 목표 3600을 달성합니다.",
+        metric="moves",
+        target=3600,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_079",
+        title="이동 전문가 19",
+        description="이동 관련 목표 3800을 달성합니다.",
+        metric="moves",
+        target=3800,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_080",
+        title="이동 전문가 20",
+        description="이동 관련 목표 4000을 달성합니다.",
+        metric="moves",
+        target=4000,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_081",
+        title="휴식 전문가 1",
+        description="휴식 관련 목표 5을 달성합니다.",
+        metric="rests",
+        target=5,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_082",
+        title="휴식 전문가 2",
+        description="휴식 관련 목표 10을 달성합니다.",
+        metric="rests",
+        target=10,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_083",
+        title="휴식 전문가 3",
+        description="휴식 관련 목표 15을 달성합니다.",
+        metric="rests",
+        target=15,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_084",
+        title="휴식 전문가 4",
+        description="휴식 관련 목표 20을 달성합니다.",
+        metric="rests",
+        target=20,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_085",
+        title="휴식 전문가 5",
+        description="휴식 관련 목표 25을 달성합니다.",
+        metric="rests",
+        target=25,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_086",
+        title="휴식 전문가 6",
+        description="휴식 관련 목표 30을 달성합니다.",
+        metric="rests",
+        target=30,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_087",
+        title="휴식 전문가 7",
+        description="휴식 관련 목표 35을 달성합니다.",
+        metric="rests",
+        target=35,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_088",
+        title="휴식 전문가 8",
+        description="휴식 관련 목표 40을 달성합니다.",
+        metric="rests",
+        target=40,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_089",
+        title="휴식 전문가 9",
+        description="휴식 관련 목표 45을 달성합니다.",
+        metric="rests",
+        target=45,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_090",
+        title="휴식 전문가 10",
+        description="휴식 관련 목표 50을 달성합니다.",
+        metric="rests",
+        target=50,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_091",
+        title="휴식 전문가 11",
+        description="휴식 관련 목표 55을 달성합니다.",
+        metric="rests",
+        target=55,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_092",
+        title="휴식 전문가 12",
+        description="휴식 관련 목표 60을 달성합니다.",
+        metric="rests",
+        target=60,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_093",
+        title="휴식 전문가 13",
+        description="휴식 관련 목표 65을 달성합니다.",
+        metric="rests",
+        target=65,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_094",
+        title="휴식 전문가 14",
+        description="휴식 관련 목표 70을 달성합니다.",
+        metric="rests",
+        target=70,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_095",
+        title="휴식 전문가 15",
+        description="휴식 관련 목표 75을 달성합니다.",
+        metric="rests",
+        target=75,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_096",
+        title="휴식 전문가 16",
+        description="휴식 관련 목표 80을 달성합니다.",
+        metric="rests",
+        target=80,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_097",
+        title="휴식 전문가 17",
+        description="휴식 관련 목표 85을 달성합니다.",
+        metric="rests",
+        target=85,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_098",
+        title="휴식 전문가 18",
+        description="휴식 관련 목표 90을 달성합니다.",
+        metric="rests",
+        target=90,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_099",
+        title="휴식 전문가 19",
+        description="휴식 관련 목표 95을 달성합니다.",
+        metric="rests",
+        target=95,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_100",
+        title="휴식 전문가 20",
+        description="휴식 관련 목표 100을 달성합니다.",
+        metric="rests",
+        target=100,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_101",
+        title="운영 전문가 1",
+        description="운영 관련 목표 100을 달성합니다.",
+        metric="turn",
+        target=100,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_102",
+        title="운영 전문가 2",
+        description="운영 관련 목표 200을 달성합니다.",
+        metric="turn",
+        target=200,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_103",
+        title="운영 전문가 3",
+        description="운영 관련 목표 300을 달성합니다.",
+        metric="turn",
+        target=300,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_104",
+        title="운영 전문가 4",
+        description="운영 관련 목표 400을 달성합니다.",
+        metric="turn",
+        target=400,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_105",
+        title="운영 전문가 5",
+        description="운영 관련 목표 500을 달성합니다.",
+        metric="turn",
+        target=500,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_106",
+        title="운영 전문가 6",
+        description="운영 관련 목표 600을 달성합니다.",
+        metric="turn",
+        target=600,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_107",
+        title="운영 전문가 7",
+        description="운영 관련 목표 700을 달성합니다.",
+        metric="turn",
+        target=700,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_108",
+        title="운영 전문가 8",
+        description="운영 관련 목표 800을 달성합니다.",
+        metric="turn",
+        target=800,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_109",
+        title="운영 전문가 9",
+        description="운영 관련 목표 900을 달성합니다.",
+        metric="turn",
+        target=900,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_110",
+        title="운영 전문가 10",
+        description="운영 관련 목표 1000을 달성합니다.",
+        metric="turn",
+        target=1000,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_111",
+        title="운영 전문가 11",
+        description="운영 관련 목표 1100을 달성합니다.",
+        metric="turn",
+        target=1100,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_112",
+        title="운영 전문가 12",
+        description="운영 관련 목표 1200을 달성합니다.",
+        metric="turn",
+        target=1200,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_113",
+        title="운영 전문가 13",
+        description="운영 관련 목표 1300을 달성합니다.",
+        metric="turn",
+        target=1300,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_114",
+        title="운영 전문가 14",
+        description="운영 관련 목표 1400을 달성합니다.",
+        metric="turn",
+        target=1400,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_115",
+        title="운영 전문가 15",
+        description="운영 관련 목표 1500을 달성합니다.",
+        metric="turn",
+        target=1500,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_116",
+        title="운영 전문가 16",
+        description="운영 관련 목표 1600을 달성합니다.",
+        metric="turn",
+        target=1600,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_117",
+        title="운영 전문가 17",
+        description="운영 관련 목표 1700을 달성합니다.",
+        metric="turn",
+        target=1700,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_118",
+        title="운영 전문가 18",
+        description="운영 관련 목표 1800을 달성합니다.",
+        metric="turn",
+        target=1800,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_119",
+        title="운영 전문가 19",
+        description="운영 관련 목표 1900을 달성합니다.",
+        metric="turn",
+        target=1900,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_120",
+        title="운영 전문가 20",
+        description="운영 관련 목표 2000을 달성합니다.",
+        metric="turn",
+        target=2000,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_121",
+        title="상황 해결 전문가 1",
+        description="상황 해결 관련 목표 2을 달성합니다.",
+        metric="incidents",
+        target=2,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_122",
+        title="상황 해결 전문가 2",
+        description="상황 해결 관련 목표 4을 달성합니다.",
+        metric="incidents",
+        target=4,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_123",
+        title="상황 해결 전문가 3",
+        description="상황 해결 관련 목표 6을 달성합니다.",
+        metric="incidents",
+        target=6,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_124",
+        title="상황 해결 전문가 4",
+        description="상황 해결 관련 목표 8을 달성합니다.",
+        metric="incidents",
+        target=8,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_125",
+        title="상황 해결 전문가 5",
+        description="상황 해결 관련 목표 10을 달성합니다.",
+        metric="incidents",
+        target=10,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_126",
+        title="상황 해결 전문가 6",
+        description="상황 해결 관련 목표 12을 달성합니다.",
+        metric="incidents",
+        target=12,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_127",
+        title="상황 해결 전문가 7",
+        description="상황 해결 관련 목표 14을 달성합니다.",
+        metric="incidents",
+        target=14,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_128",
+        title="상황 해결 전문가 8",
+        description="상황 해결 관련 목표 16을 달성합니다.",
+        metric="incidents",
+        target=16,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_129",
+        title="상황 해결 전문가 9",
+        description="상황 해결 관련 목표 18을 달성합니다.",
+        metric="incidents",
+        target=18,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_130",
+        title="상황 해결 전문가 10",
+        description="상황 해결 관련 목표 20을 달성합니다.",
+        metric="incidents",
+        target=20,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_131",
+        title="상황 해결 전문가 11",
+        description="상황 해결 관련 목표 22을 달성합니다.",
+        metric="incidents",
+        target=22,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_132",
+        title="상황 해결 전문가 12",
+        description="상황 해결 관련 목표 24을 달성합니다.",
+        metric="incidents",
+        target=24,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_133",
+        title="상황 해결 전문가 13",
+        description="상황 해결 관련 목표 26을 달성합니다.",
+        metric="incidents",
+        target=26,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_134",
+        title="상황 해결 전문가 14",
+        description="상황 해결 관련 목표 28을 달성합니다.",
+        metric="incidents",
+        target=28,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_135",
+        title="상황 해결 전문가 15",
+        description="상황 해결 관련 목표 30을 달성합니다.",
+        metric="incidents",
+        target=30,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_136",
+        title="상황 해결 전문가 16",
+        description="상황 해결 관련 목표 32을 달성합니다.",
+        metric="incidents",
+        target=32,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_137",
+        title="상황 해결 전문가 17",
+        description="상황 해결 관련 목표 34을 달성합니다.",
+        metric="incidents",
+        target=34,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_138",
+        title="상황 해결 전문가 18",
+        description="상황 해결 관련 목표 36을 달성합니다.",
+        metric="incidents",
+        target=36,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_139",
+        title="상황 해결 전문가 19",
+        description="상황 해결 관련 목표 38을 달성합니다.",
+        metric="incidents",
+        target=38,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_140",
+        title="상황 해결 전문가 20",
+        description="상황 해결 관련 목표 40을 달성합니다.",
+        metric="incidents",
+        target=40,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_141",
+        title="발생 대응 전문가 1",
+        description="발생 대응 관련 목표 25을 달성합니다.",
+        metric="spawned",
+        target=25,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_142",
+        title="발생 대응 전문가 2",
+        description="발생 대응 관련 목표 50을 달성합니다.",
+        metric="spawned",
+        target=50,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_143",
+        title="발생 대응 전문가 3",
+        description="발생 대응 관련 목표 75을 달성합니다.",
+        metric="spawned",
+        target=75,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_144",
+        title="발생 대응 전문가 4",
+        description="발생 대응 관련 목표 100을 달성합니다.",
+        metric="spawned",
+        target=100,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_145",
+        title="발생 대응 전문가 5",
+        description="발생 대응 관련 목표 125을 달성합니다.",
+        metric="spawned",
+        target=125,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_146",
+        title="발생 대응 전문가 6",
+        description="발생 대응 관련 목표 150을 달성합니다.",
+        metric="spawned",
+        target=150,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_147",
+        title="발생 대응 전문가 7",
+        description="발생 대응 관련 목표 175을 달성합니다.",
+        metric="spawned",
+        target=175,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_148",
+        title="발생 대응 전문가 8",
+        description="발생 대응 관련 목표 200을 달성합니다.",
+        metric="spawned",
+        target=200,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_149",
+        title="발생 대응 전문가 9",
+        description="발생 대응 관련 목표 225을 달성합니다.",
+        metric="spawned",
+        target=225,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_150",
+        title="발생 대응 전문가 10",
+        description="발생 대응 관련 목표 250을 달성합니다.",
+        metric="spawned",
+        target=250,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_151",
+        title="발생 대응 전문가 11",
+        description="발생 대응 관련 목표 275을 달성합니다.",
+        metric="spawned",
+        target=275,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_152",
+        title="발생 대응 전문가 12",
+        description="발생 대응 관련 목표 300을 달성합니다.",
+        metric="spawned",
+        target=300,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_153",
+        title="발생 대응 전문가 13",
+        description="발생 대응 관련 목표 325을 달성합니다.",
+        metric="spawned",
+        target=325,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_154",
+        title="발생 대응 전문가 14",
+        description="발생 대응 관련 목표 350을 달성합니다.",
+        metric="spawned",
+        target=350,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_155",
+        title="발생 대응 전문가 15",
+        description="발생 대응 관련 목표 375을 달성합니다.",
+        metric="spawned",
+        target=375,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_156",
+        title="발생 대응 전문가 16",
+        description="발생 대응 관련 목표 400을 달성합니다.",
+        metric="spawned",
+        target=400,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_157",
+        title="발생 대응 전문가 17",
+        description="발생 대응 관련 목표 425을 달성합니다.",
+        metric="spawned",
+        target=425,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_158",
+        title="발생 대응 전문가 18",
+        description="발생 대응 관련 목표 450을 달성합니다.",
+        metric="spawned",
+        target=450,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_159",
+        title="발생 대응 전문가 19",
+        description="발생 대응 관련 목표 475을 달성합니다.",
+        metric="spawned",
+        target=475,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_160",
+        title="발생 대응 전문가 20",
+        description="발생 대응 관련 목표 500을 달성합니다.",
+        metric="spawned",
+        target=500,
+        reward=60,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_161",
+        title="청결도 전문가 1",
+        description="청결도 관련 목표 52을 달성합니다.",
+        metric="cleanliness",
+        target=52,
+        reward=3,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_162",
+        title="청결도 전문가 2",
+        description="청결도 관련 목표 54을 달성합니다.",
+        metric="cleanliness",
+        target=54,
+        reward=6,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_163",
+        title="청결도 전문가 3",
+        description="청결도 관련 목표 56을 달성합니다.",
+        metric="cleanliness",
+        target=56,
+        reward=9,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_164",
+        title="청결도 전문가 4",
+        description="청결도 관련 목표 58을 달성합니다.",
+        metric="cleanliness",
+        target=58,
+        reward=12,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_165",
+        title="청결도 전문가 5",
+        description="청결도 관련 목표 60을 달성합니다.",
+        metric="cleanliness",
+        target=60,
+        reward=15,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_166",
+        title="청결도 전문가 6",
+        description="청결도 관련 목표 62을 달성합니다.",
+        metric="cleanliness",
+        target=62,
+        reward=18,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_167",
+        title="청결도 전문가 7",
+        description="청결도 관련 목표 64을 달성합니다.",
+        metric="cleanliness",
+        target=64,
+        reward=21,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_168",
+        title="청결도 전문가 8",
+        description="청결도 관련 목표 66을 달성합니다.",
+        metric="cleanliness",
+        target=66,
+        reward=24,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_169",
+        title="청결도 전문가 9",
+        description="청결도 관련 목표 68을 달성합니다.",
+        metric="cleanliness",
+        target=68,
+        reward=27,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_170",
+        title="청결도 전문가 10",
+        description="청결도 관련 목표 70을 달성합니다.",
+        metric="cleanliness",
+        target=70,
+        reward=30,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_171",
+        title="청결도 전문가 11",
+        description="청결도 관련 목표 72을 달성합니다.",
+        metric="cleanliness",
+        target=72,
+        reward=33,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_172",
+        title="청결도 전문가 12",
+        description="청결도 관련 목표 74을 달성합니다.",
+        metric="cleanliness",
+        target=74,
+        reward=36,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_173",
+        title="청결도 전문가 13",
+        description="청결도 관련 목표 76을 달성합니다.",
+        metric="cleanliness",
+        target=76,
+        reward=39,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_174",
+        title="청결도 전문가 14",
+        description="청결도 관련 목표 78을 달성합니다.",
+        metric="cleanliness",
+        target=78,
+        reward=42,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_175",
+        title="청결도 전문가 15",
+        description="청결도 관련 목표 80을 달성합니다.",
+        metric="cleanliness",
+        target=80,
+        reward=45,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_176",
+        title="청결도 전문가 16",
+        description="청결도 관련 목표 82을 달성합니다.",
+        metric="cleanliness",
+        target=82,
+        reward=48,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_177",
+        title="청결도 전문가 17",
+        description="청결도 관련 목표 84을 달성합니다.",
+        metric="cleanliness",
+        target=84,
+        reward=51,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_178",
+        title="청결도 전문가 18",
+        description="청결도 관련 목표 86을 달성합니다.",
+        metric="cleanliness",
+        target=86,
+        reward=54,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_179",
+        title="청결도 전문가 19",
+        description="청결도 관련 목표 88을 달성합니다.",
+        metric="cleanliness",
+        target=88,
+        reward=57,
+    ),
+    AchievementDefinition(
+        achievement_id="achievement_180",
+        title="청결도 전문가 20",
+        description="청결도 관련 목표 90을 달성합니다.",
+        metric="cleanliness",
+        target=90,
+        reward=60,
+    ),
+]
+
+
+SCENARIO_PRESETS: Dict[str, Dict[str, Any]] = {
+    "scenario_01": {
+        "title": "공원 운영 시나리오 01",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 5,
+        "initial_bonus_trash": 1,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 71,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 01입니다.",
+    },
+    "scenario_02": {
+        "title": "공원 운영 시나리오 02",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 6,
+        "initial_bonus_trash": 2,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 72,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 02입니다.",
+    },
+    "scenario_03": {
+        "title": "공원 운영 시나리오 03",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 7,
+        "initial_bonus_trash": 3,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 73,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 03입니다.",
+    },
+    "scenario_04": {
+        "title": "공원 운영 시나리오 04",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 8,
+        "initial_bonus_trash": 4,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 74,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 04입니다.",
+    },
+    "scenario_05": {
+        "title": "공원 운영 시나리오 05",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 9,
+        "initial_bonus_trash": 5,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 75,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 05입니다.",
+    },
+    "scenario_06": {
+        "title": "공원 운영 시나리오 06",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 10,
+        "initial_bonus_trash": 6,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 76,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 06입니다.",
+    },
+    "scenario_07": {
+        "title": "공원 운영 시나리오 07",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 11,
+        "initial_bonus_trash": 7,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 77,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 07입니다.",
+    },
+    "scenario_08": {
+        "title": "공원 운영 시나리오 08",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 12,
+        "initial_bonus_trash": 8,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 78,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 08입니다.",
+    },
+    "scenario_09": {
+        "title": "공원 운영 시나리오 09",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 13,
+        "initial_bonus_trash": 9,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 79,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 09입니다.",
+    },
+    "scenario_10": {
+        "title": "공원 운영 시나리오 10",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 14,
+        "initial_bonus_trash": 0,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 80,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 10입니다.",
+    },
+    "scenario_11": {
+        "title": "공원 운영 시나리오 11",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 15,
+        "initial_bonus_trash": 1,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 81,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 11입니다.",
+    },
+    "scenario_12": {
+        "title": "공원 운영 시나리오 12",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 16,
+        "initial_bonus_trash": 2,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 82,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 12입니다.",
+    },
+    "scenario_13": {
+        "title": "공원 운영 시나리오 13",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 4,
+        "initial_bonus_trash": 3,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 83,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 13입니다.",
+    },
+    "scenario_14": {
+        "title": "공원 운영 시나리오 14",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 5,
+        "initial_bonus_trash": 4,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 84,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 14입니다.",
+    },
+    "scenario_15": {
+        "title": "공원 운영 시나리오 15",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 6,
+        "initial_bonus_trash": 5,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 85,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 15입니다.",
+    },
+    "scenario_16": {
+        "title": "공원 운영 시나리오 16",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 7,
+        "initial_bonus_trash": 6,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 86,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 16입니다.",
+    },
+    "scenario_17": {
+        "title": "공원 운영 시나리오 17",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 8,
+        "initial_bonus_trash": 7,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 87,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 17입니다.",
+    },
+    "scenario_18": {
+        "title": "공원 운영 시나리오 18",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 9,
+        "initial_bonus_trash": 8,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 88,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 18입니다.",
+    },
+    "scenario_19": {
+        "title": "공원 운영 시나리오 19",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 10,
+        "initial_bonus_trash": 9,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 89,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 19입니다.",
+    },
+    "scenario_20": {
+        "title": "공원 운영 시나리오 20",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 11,
+        "initial_bonus_trash": 0,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 90,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 20입니다.",
+    },
+    "scenario_21": {
+        "title": "공원 운영 시나리오 21",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 12,
+        "initial_bonus_trash": 1,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 91,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 21입니다.",
+    },
+    "scenario_22": {
+        "title": "공원 운영 시나리오 22",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 13,
+        "initial_bonus_trash": 2,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 92,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 22입니다.",
+    },
+    "scenario_23": {
+        "title": "공원 운영 시나리오 23",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 14,
+        "initial_bonus_trash": 3,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 93,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 23입니다.",
+    },
+    "scenario_24": {
+        "title": "공원 운영 시나리오 24",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 15,
+        "initial_bonus_trash": 4,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 94,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 24입니다.",
+    },
+    "scenario_25": {
+        "title": "공원 운영 시나리오 25",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 16,
+        "initial_bonus_trash": 5,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 95,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 25입니다.",
+    },
+    "scenario_26": {
+        "title": "공원 운영 시나리오 26",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 4,
+        "initial_bonus_trash": 6,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 70,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 26입니다.",
+    },
+    "scenario_27": {
+        "title": "공원 운영 시나리오 27",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 5,
+        "initial_bonus_trash": 7,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 71,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 27입니다.",
+    },
+    "scenario_28": {
+        "title": "공원 운영 시나리오 28",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 6,
+        "initial_bonus_trash": 8,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 72,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 28입니다.",
+    },
+    "scenario_29": {
+        "title": "공원 운영 시나리오 29",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 7,
+        "initial_bonus_trash": 9,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 73,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 29입니다.",
+    },
+    "scenario_30": {
+        "title": "공원 운영 시나리오 30",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 8,
+        "initial_bonus_trash": 0,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 74,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 30입니다.",
+    },
+    "scenario_31": {
+        "title": "공원 운영 시나리오 31",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 9,
+        "initial_bonus_trash": 1,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 75,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 31입니다.",
+    },
+    "scenario_32": {
+        "title": "공원 운영 시나리오 32",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 10,
+        "initial_bonus_trash": 2,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 76,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 32입니다.",
+    },
+    "scenario_33": {
+        "title": "공원 운영 시나리오 33",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 11,
+        "initial_bonus_trash": 3,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 77,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 33입니다.",
+    },
+    "scenario_34": {
+        "title": "공원 운영 시나리오 34",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 12,
+        "initial_bonus_trash": 4,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 78,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 34입니다.",
+    },
+    "scenario_35": {
+        "title": "공원 운영 시나리오 35",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 13,
+        "initial_bonus_trash": 5,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 79,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 35입니다.",
+    },
+    "scenario_36": {
+        "title": "공원 운영 시나리오 36",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 14,
+        "initial_bonus_trash": 6,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 80,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 36입니다.",
+    },
+    "scenario_37": {
+        "title": "공원 운영 시나리오 37",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 15,
+        "initial_bonus_trash": 7,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 81,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 37입니다.",
+    },
+    "scenario_38": {
+        "title": "공원 운영 시나리오 38",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 16,
+        "initial_bonus_trash": 8,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 82,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 38입니다.",
+    },
+    "scenario_39": {
+        "title": "공원 운영 시나리오 39",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 4,
+        "initial_bonus_trash": 9,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 83,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 39입니다.",
+    },
+    "scenario_40": {
+        "title": "공원 운영 시나리오 40",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 5,
+        "initial_bonus_trash": 0,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 84,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 40입니다.",
+    },
+    "scenario_41": {
+        "title": "공원 운영 시나리오 41",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 6,
+        "initial_bonus_trash": 1,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 85,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 41입니다.",
+    },
+    "scenario_42": {
+        "title": "공원 운영 시나리오 42",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 7,
+        "initial_bonus_trash": 2,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 86,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 42입니다.",
+    },
+    "scenario_43": {
+        "title": "공원 운영 시나리오 43",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 8,
+        "initial_bonus_trash": 3,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 87,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 43입니다.",
+    },
+    "scenario_44": {
+        "title": "공원 운영 시나리오 44",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 9,
+        "initial_bonus_trash": 4,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 88,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 44입니다.",
+    },
+    "scenario_45": {
+        "title": "공원 운영 시나리오 45",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 10,
+        "initial_bonus_trash": 5,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 89,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 45입니다.",
+    },
+    "scenario_46": {
+        "title": "공원 운영 시나리오 46",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 11,
+        "initial_bonus_trash": 6,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 90,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 46입니다.",
+    },
+    "scenario_47": {
+        "title": "공원 운영 시나리오 47",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 12,
+        "initial_bonus_trash": 7,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 91,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 47입니다.",
+    },
+    "scenario_48": {
+        "title": "공원 운영 시나리오 48",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 13,
+        "initial_bonus_trash": 8,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 92,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 48입니다.",
+    },
+    "scenario_49": {
+        "title": "공원 운영 시나리오 49",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 14,
+        "initial_bonus_trash": 9,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 93,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 49입니다.",
+    },
+    "scenario_50": {
+        "title": "공원 운영 시나리오 50",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 15,
+        "initial_bonus_trash": 0,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 94,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 50입니다.",
+    },
+    "scenario_51": {
+        "title": "공원 운영 시나리오 51",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 16,
+        "initial_bonus_trash": 1,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 95,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 51입니다.",
+    },
+    "scenario_52": {
+        "title": "공원 운영 시나리오 52",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 4,
+        "initial_bonus_trash": 2,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 70,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 52입니다.",
+    },
+    "scenario_53": {
+        "title": "공원 운영 시나리오 53",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 5,
+        "initial_bonus_trash": 3,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 71,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 53입니다.",
+    },
+    "scenario_54": {
+        "title": "공원 운영 시나리오 54",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 6,
+        "initial_bonus_trash": 4,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 72,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 54입니다.",
+    },
+    "scenario_55": {
+        "title": "공원 운영 시나리오 55",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 7,
+        "initial_bonus_trash": 5,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 73,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 55입니다.",
+    },
+    "scenario_56": {
+        "title": "공원 운영 시나리오 56",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 8,
+        "initial_bonus_trash": 6,
+        "incident_bonus": 0.001,
+        "target_cleanliness": 74,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 56입니다.",
+    },
+    "scenario_57": {
+        "title": "공원 운영 시나리오 57",
+        "difficulty": DifficultyLevel.EASY,
+        "citizen_count": 9,
+        "initial_bonus_trash": 7,
+        "incident_bonus": 0.002,
+        "target_cleanliness": 75,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 57입니다.",
+    },
+    "scenario_58": {
+        "title": "공원 운영 시나리오 58",
+        "difficulty": DifficultyLevel.NORMAL,
+        "citizen_count": 10,
+        "initial_bonus_trash": 8,
+        "incident_bonus": 0.003,
+        "target_cleanliness": 76,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 58입니다.",
+    },
+    "scenario_59": {
+        "title": "공원 운영 시나리오 59",
+        "difficulty": DifficultyLevel.HARD,
+        "citizen_count": 11,
+        "initial_bonus_trash": 9,
+        "incident_bonus": 0.004,
+        "target_cleanliness": 77,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 59입니다.",
+    },
+    "scenario_60": {
+        "title": "공원 운영 시나리오 60",
+        "difficulty": DifficultyLevel.EXPERT,
+        "citizen_count": 12,
+        "initial_bonus_trash": 0,
+        "incident_bonus": 0.000,
+        "target_cleanliness": 78,
+        "description": "서로 다른 시민 수와 환경 압력을 사용하는 확장 시나리오 60입니다.",
+    },
+}
+
+
+class ScenarioManager:
+    def __init__(self, scenario_name: str = "scenario_01") -> None:
+        self.scenario_name = scenario_name if scenario_name in SCENARIO_PRESETS else "scenario_01"
+
+    @property
+    def data(self) -> Dict[str, Any]:
+        return SCENARIO_PRESETS[self.scenario_name]
+
+    def apply(self, engine: "ExtendedSimulationEngine") -> None:
+        engine.difficulty = self.data["difficulty"]
+        bonus = int(self.data["initial_bonus_trash"])
+        if bonus > 0:
+            engine.spawn_trash(bonus)
+
+    def description(self) -> str:
+        return (
+            f"{self.data['title']}\n"
+            f"난이도: {self.data['difficulty'].label}\n"
+            f"시민 수: {self.data['citizen_count']}\n"
+            f"목표 청결도: {self.data['target_cleanliness']}\n"
+            f"{self.data['description']}"
+        )
+
+
+class ExtendedSimulationEngine(SimulationEngine):
+    def __init__(self, config: Optional[SimulationConfig] = None) -> None:
+        super().__init__(config)
+        self.difficulty = DifficultyLevel.NORMAL
+        self.scenario_manager = ScenarioManager()
+        self.zone_manager = ZoneManager(self.world)
+        self.citizen_manager = CitizenManager(self.world, self.pathfinder, self.zone_manager)
+        self.incident_manager = IncidentManager()
+        self.analytics_manager = AnalyticsManager()
+        self.achievement_manager = AchievementManager()
+        blocked = self.occupied_positions() | {trash.position for trash in self.trash_items.values()}
+        self.citizen_manager.create_citizens(int(self.scenario_manager.data["citizen_count"]), blocked)
+        self.scenario_manager.apply(self)
+
+    def step(self) -> None:
+        if self.finished:
+            return
+        super().step()
+        self.zone_manager.update(self.trash_items, self.citizen_manager.citizens)
+        self.citizen_manager.update(self)
+        self.incident_manager.update(self)
+        self.statistics.update_from_agents(self.agents)
+        self.achievement_manager.update(self)
+        self.analytics_manager.capture(self)
+
+    def extended_status_text(self) -> str:
+        dirtiest = self.zone_manager.dirtiest_zone()
+        dirtiest_text = "없음" if dirtiest is None else f"{dirtiest.name} ({dirtiest.cleanliness:.1f})"
+        return (
+            f"난이도: {self.difficulty.label}\n"
+            f"시민 수: {len(self.citizen_manager.citizens)}명\n"
+            f"시민 만족도: {self.citizen_manager.average_satisfaction():.1f}\n"
+            f"평균 청결도: {self.zone_manager.average_cleanliness():.1f}\n"
+            f"가장 더러운 구역: {dirtiest_text}\n"
+            f"활성 돌발 상황: {self.incident_manager.active_count()}개\n"
+            f"달성 업적: {self.achievement_manager.unlocked_count()}개"
+        )
+
+    def summary_report(self) -> str:
+        base = super().summary_report()
+        return (
+            base
+            + "\n\n[확장 운영 정보]\n"
+            + self.extended_status_text()
+            + "\n\n[분석]\n"
+            + self.analytics_manager.report()
+            + "\n\n[최근 달성 업적]\n"
+            + self.achievement_manager.report()
+        )
+
+
 class SimulationApp:
     TILE_COLORS = {
         TileType.EMPTY: "#E8F5E9",
@@ -3661,7 +6184,7 @@ class SimulationApp:
         self.root = root
         self.root.title(APP_TITLE)
 
-        self.engine = SimulationEngine()
+        self.engine = ExtendedSimulationEngine()
         self.after_id: Optional[str] = None
         self.selected_agent_id: Optional[int] = None
 
@@ -3806,7 +6329,7 @@ class SimulationApp:
         if not messagebox.askyesno(APP_TITLE, "처음부터 다시 시작할까요?"):
             return
 
-        self.engine = SimulationEngine(self.engine.config)
+        self.engine = ExtendedSimulationEngine(self.engine.config)
         self.selected_agent_id = None
         self.speed_var.set(self.engine.config.tick_delay)
         self.status_var.set("정지")
@@ -3851,7 +6374,7 @@ class SimulationApp:
             return
 
         try:
-            self.engine = SimulationEngine.load(path)
+            self.engine = ExtendedSimulationEngine.load(path)
         except Exception as error:
             messagebox.showerror(APP_TITLE, f"불러오기 중 오류가 발생했습니다.\n{error}")
             return
@@ -3995,6 +6518,19 @@ class SimulationApp:
                 font=("맑은 고딕", 7, "bold"),
             )
 
+        if isinstance(self.engine, ExtendedSimulationEngine):
+            for citizen in self.engine.citizen_manager.citizens:
+                left, top, right, bottom = self.cell_bounds(citizen.position)
+                self.canvas.create_rectangle(
+                    left + 8,
+                    top + 8,
+                    right - 8,
+                    bottom - 8,
+                    fill=citizen.color,
+                    outline="#FFFFFF",
+                    width=1,
+                )
+
         for agent in self.engine.agents:
             left, top, right, bottom = self.cell_bounds(agent.position)
             selected = agent.agent_id == self.selected_agent_id
@@ -4063,9 +6599,14 @@ class SimulationApp:
         )
 
         if selected is None:
+            status = self.engine.statistics.status_text()
+
+            if isinstance(self.engine, ExtendedSimulationEngine):
+                status += "\n\n" + self.engine.extended_status_text()
+
             self.detail_text.insert(
                 tk.END,
-                self.engine.statistics.status_text(),
+                status,
             )
             return
 
@@ -4092,6 +6633,12 @@ class SimulationApp:
     def close(self) -> None:
         self.pause()
         self.root.destroy()
+
+
+
+# ============================================================
+# 확장 시스템 운영 규칙
+# ============================================================
 
 
 def main() -> None:
