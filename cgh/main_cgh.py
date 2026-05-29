@@ -2807,6 +2807,11 @@ class SimulationEngine:
         "#66BB6A",
         "#AB47BC",
         "#FFA726",
+        "#26A69A",
+        "#EC407A",
+        "#7E57C2",
+        "#78909C",
+        "#8D6E63",
     ]
 
     NAMES = [
@@ -2815,138 +2820,137 @@ class SimulationEngine:
         "지우",
         "서연",
         "도윤",
+        "하린",
+        "현우",
+        "유진",
+        "지민",
+        "수아",
     ]
 
     def __init__(
         self,
+        config: Optional[SimulationConfig] = None,
     ) -> None:
-        self.config = (
-            SimulationConfig()
-        )
-
+        self.config = config or SimulationConfig()
         self.config.normalize()
 
-        random.seed(
-            self.config.random_seed
-        )
+        random.seed(self.config.random_seed)
 
         self.world = WorldMap(
             self.config.width,
             self.config.height,
         )
+        self.world.generate(self.config)
 
-        self.world.generate(
-            self.config
-        )
+        self.pathfinder = PathFinder(self.world)
+        self.environment = EnvironmentState()
+        self.statistics = SimulationStatistics()
 
-        self.pathfinder = PathFinder(
-            self.world
-        )
-
-        self.environment = (
-            EnvironmentState()
-        )
-
-        self.statistics = (
-            SimulationStatistics()
-        )
-
-        self.agents: List[
-            CleanerAgent
-        ] = []
-
-        self.trash_items: Dict[
-            int,
-            Trash
-        ] = {}
-
-        self.events: List[
-            SimulationEvent
-        ] = []
+        self.agents: List[CleanerAgent] = []
+        self.trash_items: Dict[int, Trash] = {}
+        self.events: List[SimulationEvent] = []
 
         self.turn = 0
         self.next_trash_id = 1
         self.running = False
+        self.finished = False
 
         self.create_agents()
-        self.spawn_trash(
-            self.config.initial_trash_count
-        )
+        self.spawn_trash(self.config.initial_trash_count, initial=True)
+        self.add_event(EventType.SYSTEM, "시뮬레이션이 준비되었습니다.")
 
-    def create_agents(
+    def reset(self) -> None:
+        self.__init__(self.config)
+
+    def occupied_positions(
         self,
-    ) -> None:
-        blocked: Set[
-            Position
-        ] = set()
+        exclude_agent_id: Optional[int] = None,
+    ) -> Set[Position]:
+        return {
+            agent.position
+            for agent in self.agents
+            if agent.agent_id != exclude_agent_id
+        }
 
-        for index in range(
-            self.config.agent_count
-        ):
-            position = (
-                self.world.random_empty_position(
-                    blocked
-                )
-            )
+    def trash_positions(self) -> Set[Position]:
+        return {
+            trash.position
+            for trash in self.trash_items.values()
+        }
 
-            if not position:
-                continue
+    def create_agents(self) -> None:
+        blocked: Set[Position] = set()
 
-            blocked.add(
-                position
-            )
+        for index in range(self.config.agent_count):
+            position = self.world.random_empty_position(blocked)
+
+            if position is None:
+                break
+
+            blocked.add(position)
 
             self.agents.append(
                 CleanerAgent(
                     agent_id=index + 1,
-                    name=self.NAMES[
-                        index
-                        % len(self.NAMES)
-                    ],
+                    name=self.NAMES[index % len(self.NAMES)],
                     position=position,
-                    color=self.COLORS[
-                        index
-                        % len(self.COLORS)
-                    ],
+                    color=self.COLORS[index % len(self.COLORS)],
                 )
             )
 
     def spawn_trash(
         self,
         count: int,
-    ) -> None:
-        blocked = {
-            trash.position
-            for trash
-            in self.trash_items.values()
-        }
+        initial: bool = False,
+    ) -> int:
+        remaining_slots = MAX_TRASH_ON_MAP - len(self.trash_items)
+        count = max(0, min(count, remaining_slots))
+
+        blocked = (
+            self.occupied_positions()
+            | self.trash_positions()
+        )
+
+        created = 0
 
         for _ in range(count):
-            position = (
-                self.world.random_empty_position(
-                    blocked
-                )
-            )
+            position = self.world.random_empty_position(blocked)
 
-            if not position:
+            if position is None:
                 break
+
+            kind = TrashKind.random_kind()
 
             trash = Trash(
                 trash_id=self.next_trash_id,
-                kind=TrashKind.random_kind(),
+                kind=kind,
                 position=position,
                 created_turn=self.turn,
+                wet=(
+                    self.environment.weather == WeatherType.RAIN
+                    and random.random() < 0.65
+                ),
+                damaged=(
+                    self.environment.weather == WeatherType.WINDY
+                    and random.random() < 0.35
+                ),
             )
 
-            self.trash_items[
-                trash.trash_id
-            ] = trash
-
-            blocked.add(
-                position
-            )
-
+            self.trash_items[trash.trash_id] = trash
             self.next_trash_id += 1
+            blocked.add(position)
+            created += 1
+
+        self.environment.total_spawned_trash += created
+
+        if created and not initial:
+            self.statistics.trash_spawn_events += 1
+            self.add_event(
+                EventType.TRASH_SPAWN,
+                f"새로운 쓰레기 {created}개가 생성되었습니다.",
+            )
+
+        return created
 
     def add_event(
         self,
@@ -2955,331 +2959,1153 @@ class SimulationEngine:
     ) -> None:
         self.events.append(
             SimulationEvent(
-                self.turn,
-                event_type,
-                message,
+                turn=self.turn,
+                event_type=event_type,
+                message=message,
             )
         )
 
-        self.events = self.events[
-            -EVENT_LOG_LIMIT:
+        if len(self.events) > EVENT_LOG_LIMIT:
+            self.events = self.events[-EVENT_LOG_LIMIT:]
+
+    def get_trash(
+        self,
+        trash_id: Optional[int],
+    ) -> Optional[Trash]:
+        if trash_id is None:
+            return None
+
+        return self.trash_items.get(trash_id)
+
+    def release_reservation(
+        self,
+        agent: CleanerAgent,
+    ) -> None:
+        trash = self.get_trash(agent.target_trash_id)
+
+        if trash is not None and trash.reserved_by == agent.agent_id:
+            trash.reserved_by = None
+
+    def choose_target(
+        self,
+        agent: CleanerAgent,
+    ) -> Optional[Tuple[Trash, List[Position]]]:
+        candidates: List[Trash] = []
+        vision_range = self.environment.vision_range()
+
+        for trash in self.trash_items.values():
+            if trash.reserved_by not in (None, agent.agent_id):
+                continue
+
+            if not agent.bag.can_add(trash):
+                continue
+
+            if agent.position.manhattan_distance(trash.position) > vision_range:
+                continue
+
+            candidates.append(trash)
+
+        candidates.sort(
+            key=lambda item: (
+                agent.position.manhattan_distance(item.position),
+                -item.score,
+                item.trash_id,
+            )
+        )
+
+        blocked = self.occupied_positions(agent.agent_id)
+
+        for trash in candidates:
+            path = self.pathfinder.find_path(
+                agent.position,
+                trash.position,
+            )
+
+            if path or agent.position == trash.position:
+                return trash, path
+
+        return None
+
+    def send_to_station(
+        self,
+        agent: CleanerAgent,
+    ) -> bool:
+        stations = sorted(
+            self.world.stations,
+            key=lambda station: agent.position.manhattan_distance(
+                station.position
+            ),
+        )
+
+        for station in stations:
+            path = self.pathfinder.find_path(
+                agent.position,
+                station.position,
+            )
+
+            if path or agent.position == station.position:
+                agent.set_destination(
+                    station.position,
+                    path,
+                    AgentState.MOVING_TO_STATION,
+                )
+                return True
+
+        return False
+
+    def send_to_rest(
+        self,
+        agent: CleanerAgent,
+    ) -> bool:
+        areas = sorted(
+            self.world.rest_areas,
+            key=lambda area: agent.position.manhattan_distance(
+                area.position
+            ),
+        )
+
+        for area in areas:
+            path = self.pathfinder.find_path(
+                agent.position,
+                area.position,
+            )
+
+            if path or agent.position == area.position:
+                agent.set_destination(
+                    area.position,
+                    path,
+                    AgentState.MOVING_TO_REST,
+                )
+                return True
+
+        return False
+
+    def station_at(
+        self,
+        position: Position,
+    ) -> Optional[RecyclingStation]:
+        for station in self.world.stations:
+            if station.position == position:
+                return station
+
+        return None
+
+    def rest_area_at(
+        self,
+        position: Position,
+    ) -> Optional[RestArea]:
+        for area in self.world.rest_areas:
+            if area.position == position:
+                return area
+
+        return None
+
+    def move_one_step(
+        self,
+        agent: CleanerAgent,
+    ) -> bool:
+        next_position = agent.next_step()
+
+        if next_position is None:
+            return False
+
+        if next_position in self.occupied_positions(agent.agent_id):
+            agent.path.insert(0, next_position)
+            agent.idle()
+            return False
+
+        if not self.world.is_walkable(next_position):
+            agent.path.clear()
+            return False
+
+        moved = agent.move_to(
+            next_position,
+            self.environment.movement_energy_cost(),
+        )
+
+        if moved:
+            self.add_event(
+                EventType.MOVE,
+                f"{agent.name}이(가) ({next_position.x}, {next_position.y})로 이동했습니다.",
+            )
+
+        return moved
+
+    def pickup_target(
+        self,
+        agent: CleanerAgent,
+    ) -> None:
+        trash = self.get_trash(agent.target_trash_id)
+
+        if trash is None:
+            agent.clear_target()
+            agent.state = AgentState.SEARCHING
+            return
+
+        if agent.position != trash.position:
+            return
+
+        if not agent.collect_trash(trash):
+            self.statistics.failed_pickups += 1
+            trash.reserved_by = None
+            agent.clear_target()
+            self.send_to_station(agent)
+            return
+
+        self.trash_items.pop(trash.trash_id, None)
+        self.environment.total_removed_trash += 1
+
+        self.add_event(
+            EventType.PICKUP,
+            (
+                f"{agent.name}이(가) {trash.kind.display_name}을(를) "
+                f"수거했습니다. (+{trash.score}점)"
+            ),
+        )
+
+    def recycle_agent(
+        self,
+        agent: CleanerAgent,
+        station: RecyclingStation,
+    ) -> None:
+        recycled_count, gained_score = agent.recycle_bag(station)
+
+        if recycled_count:
+            self.add_event(
+                EventType.RECYCLE,
+                (
+                    f"{agent.name}이(가) {station.name}에서 "
+                    f"쓰레기 {recycled_count}개를 분리배출했습니다. "
+                    f"(+{gained_score}점)"
+                ),
+            )
+        else:
+            agent.state = AgentState.SEARCHING
+
+    def rest_agent(
+        self,
+        agent: CleanerAgent,
+        area: RestArea,
+    ) -> None:
+        recovered = agent.rest_at(area)
+
+        self.add_event(
+            EventType.REST,
+            f"{agent.name}이(가) {area.name}에서 체력 {recovered}을 회복했습니다.",
+        )
+
+    def wander(
+        self,
+        agent: CleanerAgent,
+    ) -> None:
+        candidates = [
+            position
+            for position in agent.position.neighbors()
+            if self.world.is_walkable(position)
+            and position not in self.occupied_positions(agent.agent_id)
         ]
+
+        if not candidates:
+            agent.idle()
+            return
+
+        next_position = random.choice(candidates)
+        agent.path = [next_position]
+        agent.state = AgentState.WANDERING
+        self.move_one_step(agent)
+        agent.state = AgentState.SEARCHING
 
     def update_agent(
         self,
         agent: CleanerAgent,
     ) -> None:
-        if agent.is_low_energy():
-            rest_area = (
-                self.world.nearest_rest_area(
-                    agent.position
-                )
-            )
+        if agent.energy <= 0:
+            area = self.rest_area_at(agent.position)
 
-            if rest_area:
-                if (
-                    agent.position
-                    == rest_area.position
-                ):
-                    agent.rest_at(
-                        rest_area
-                    )
+            if area is not None:
+                agent.continue_resting(6)
+            else:
+                agent.recover_energy(1)
+                agent.state = AgentState.IDLE
 
-                    return
+            return
 
-                agent.path = (
-                    self.pathfinder.find_path(
-                        agent.position,
-                        rest_area.position,
-                    )
-                )
+        if agent.state == AgentState.RESTING:
+            area = self.rest_area_at(agent.position)
 
-        elif agent.should_return_to_station():
-            station = (
-                self.world.nearest_station(
-                    agent.position
-                )
-            )
+            if area is None:
+                agent.state = AgentState.SEARCHING
+            else:
+                agent.continue_resting(6)
 
-            if station:
-                if (
-                    agent.position
-                    == station.position
-                ):
-                    agent.recycle_bag(
-                        station
-                    )
+            return
 
-                    return
+        if agent.is_low_energy() and agent.state != AgentState.MOVING_TO_REST:
+            self.release_reservation(agent)
+            agent.clear_target()
 
-                agent.path = (
-                    self.pathfinder.find_path(
-                        agent.position,
-                        station.position,
-                    )
-                )
-
-        elif not agent.path:
-            available = [
-                trash
-                for trash
-                in self.trash_items.values()
-                if agent.bag.can_add(
-                    trash
-                )
-            ]
-
-            if available:
-                target = min(
-                    available,
-                    key=lambda trash:
-                    agent.position.manhattan_distance(
-                        trash.position
-                    ),
-                )
-
-                agent.target_trash_id = (
-                    target.trash_id
-                )
-
-                agent.path = (
-                    self.pathfinder.find_path(
-                        agent.position,
-                        target.position,
-                    )
-                )
-
-        if agent.path:
-            next_position = (
-                agent.next_step()
-            )
-
-            if next_position:
-                agent.move_to(
-                    next_position,
-                    self.environment.movement_energy_cost(),
-                )
-
-        target = self.trash_items.get(
-            agent.target_trash_id
-            or -1
-        )
+            if self.send_to_rest(agent):
+                return
 
         if (
-            target
-            and target.position
-            == agent.position
+            not agent.is_bag_empty()
+            and agent.should_return_to_station()
+            and agent.state != AgentState.MOVING_TO_STATION
         ):
-            if agent.collect_trash(
-                target
-            ):
-                self.trash_items.pop(
-                    target.trash_id,
-                    None,
+            self.release_reservation(agent)
+            agent.clear_target()
+
+            if self.send_to_station(agent):
+                return
+
+        if agent.state == AgentState.MOVING_TO_STATION:
+            station = self.station_at(agent.position)
+
+            if station is not None:
+                self.recycle_agent(agent, station)
+                return
+
+            if not agent.path:
+                self.send_to_station(agent)
+
+            self.move_one_step(agent)
+            station = self.station_at(agent.position)
+
+            if station is not None:
+                self.recycle_agent(agent, station)
+
+            return
+
+        if agent.state == AgentState.MOVING_TO_REST:
+            area = self.rest_area_at(agent.position)
+
+            if area is not None:
+                self.rest_agent(agent, area)
+                return
+
+            if not agent.path:
+                self.send_to_rest(agent)
+
+            self.move_one_step(agent)
+            area = self.rest_area_at(agent.position)
+
+            if area is not None:
+                self.rest_agent(agent, area)
+
+            return
+
+        if agent.state == AgentState.MOVING_TO_TRASH:
+            trash = self.get_trash(agent.target_trash_id)
+
+            if trash is None:
+                agent.clear_target()
+                agent.state = AgentState.SEARCHING
+                return
+
+            if agent.position == trash.position:
+                self.pickup_target(agent)
+                return
+
+            if not agent.path:
+                agent.path = self.pathfinder.find_path(
+                    agent.position,
+                    trash.position,
                 )
 
+            if not agent.path:
+                trash.reserved_by = None
+                agent.clear_target()
+                agent.state = AgentState.SEARCHING
+                self.statistics.unreachable_targets += 1
+                return
+
+            self.move_one_step(agent)
+
+            if agent.position == trash.position:
+                self.pickup_target(agent)
+
+            return
+
+        if not self.trash_items and not agent.is_bag_empty():
+            if self.send_to_station(agent):
+                return
+
+        target_result = self.choose_target(agent)
+
+        if target_result is None:
+            self.wander(agent)
+            return
+
+        trash, path = target_result
+        trash.reserved_by = agent.agent_id
+        agent.set_trash_target(trash, path)
+
+        if agent.position == trash.position:
+            self.pickup_target(agent)
+        else:
+            self.move_one_step(agent)
+
+    def maintain_stations(self) -> None:
+        for station in self.world.stations:
+            emptied = station.maintenance()
+
+            if emptied:
                 self.add_event(
-                    EventType.PICKUP,
-                    (
-                        f"{agent.name}이(가) "
-                        f"{target.kind.display_name}을 "
-                        f"수거했습니다."
-                    ),
+                    EventType.INFO,
+                    f"{station.name}의 가득 찬 수거함 {emptied}개를 비웠습니다.",
                 )
 
-    def step(
-        self,
-    ) -> None:
+    def step(self) -> None:
+        if self.finished:
+            return
+
+        if self.turn >= self.config.max_turns:
+            self.finished = True
+            self.running = False
+            return
+
         self.turn += 1
 
-        for event in (
-            self.environment.update(
-                self.turn
-            )
-        ):
-            self.events.append(
-                event
+        for event in self.environment.update(self.turn):
+            self.events.append(event)
+
+        if self.turn % TRASH_SPAWN_INTERVAL == 0:
+            base_count = random.randint(
+                TRASH_SPAWN_MIN_COUNT,
+                TRASH_SPAWN_MAX_COUNT,
             )
 
-        if (
-            self.turn
-            % TRASH_SPAWN_INTERVAL
-            == 0
-        ):
-            self.spawn_trash(
-                random.randint(
-                    TRASH_SPAWN_MIN_COUNT,
-                    TRASH_SPAWN_MAX_COUNT,
+            adjusted_count = max(
+                1,
+                round(base_count * self.environment.spawn_multiplier()),
+            )
+
+            self.spawn_trash(adjusted_count)
+
+        for agent in self.agents:
+            self.update_agent(agent)
+
+        self.maintain_stations()
+        self.statistics.update_from_agents(self.agents)
+        self.statistics.observe_trash_count(
+            self.turn,
+            len(self.trash_items),
+        )
+
+        if self.turn >= self.config.max_turns:
+            self.finished = True
+            self.running = False
+            self.add_event(
+                EventType.SYSTEM,
+                "최대 턴에 도달하여 시뮬레이션을 종료합니다.",
+            )
+
+    def summary_report(self) -> str:
+        lines = [
+            "=" * 56,
+            "사람 쓰레기 수거 시뮬레이션 결과",
+            "=" * 56,
+            f"현재 턴: {self.turn}",
+            f"현재 날씨: {self.environment.weather.display_name}",
+            f"현재 시간대: {self.environment.time_period.display_name}",
+            f"남은 쓰레기: {len(self.trash_items)}개",
+            f"총 생성 쓰레기: {self.environment.total_spawned_trash}개",
+            f"총 수거: {self.statistics.total_pickups}개",
+            f"총 분리배출: {self.statistics.total_recycled}개",
+            f"총점: {self.statistics.total_score}점",
+            "",
+            "[청소원별 결과]",
+        ]
+
+        for agent in self.agents:
+            lines.append(
+                (
+                    f"- {agent.name}: 점수 {agent.score}, "
+                    f"수거 {agent.collected_count}, "
+                    f"분리배출 {agent.recycled_count}, "
+                    f"이동 {agent.moved_steps}, "
+                    f"휴식 {agent.rested_count}"
                 )
             )
 
-        for agent in self.agents:
-            self.update_agent(
-                agent
+        lines.extend(
+            [
+                "",
+                "[분리수거장별 결과]",
+            ]
+        )
+
+        for station in self.world.stations:
+            lines.append(
+                (
+                    f"- {station.name}: 처리 {station.processed_count}개, "
+                    f"처리 무게 {station.processed_weight}, "
+                    f"정비 {station.maintenance_count}회"
+                )
             )
 
-        self.statistics.update_from_agents(
-            self.agents
+        lines.append("=" * 56)
+        return "\n".join(lines)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "config": {
+                "width": self.config.width,
+                "height": self.config.height,
+                "agent_count": self.config.agent_count,
+                "initial_trash_count": self.config.initial_trash_count,
+                "obstacle_count": self.config.obstacle_count,
+                "station_count": self.config.station_count,
+                "rest_area_count": self.config.rest_area_count,
+                "max_turns": self.config.max_turns,
+                "tick_delay": self.config.tick_delay,
+                "random_seed": self.config.random_seed,
+            },
+            "turn": self.turn,
+            "next_trash_id": self.next_trash_id,
+            "finished": self.finished,
+            "tiles": [
+                [tile.name for tile in row]
+                for row in self.world.tiles
+            ],
+            "stations": [station.to_dict() for station in self.world.stations],
+            "rest_areas": [area.to_dict() for area in self.world.rest_areas],
+            "agents": [agent.to_dict() for agent in self.agents],
+            "trash_items": [trash.to_dict() for trash in self.trash_items.values()],
+            "environment": self.environment.to_dict(),
+            "statistics": self.statistics.to_dict(),
+            "events": [
+                {
+                    "turn": event.turn,
+                    "event_type": event.event_type.name,
+                    "message": event.message,
+                }
+                for event in self.events
+            ],
+        }
+
+    def save(self, path: str) -> None:
+        Path(path).write_text(
+            json.dumps(
+                self.to_dict(),
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
         )
+
+        self.add_event(
+            EventType.SYSTEM,
+            f"시뮬레이션을 저장했습니다: {path}",
+        )
+
+    @classmethod
+    def load(cls, path: str) -> "SimulationEngine":
+        data = json.loads(
+            Path(path).read_text(encoding="utf-8")
+        )
+
+        config_data = data.get("config", {})
+        config = SimulationConfig(
+            width=safe_int(config_data.get("width"), MAP_WIDTH),
+            height=safe_int(config_data.get("height"), MAP_HEIGHT),
+            agent_count=safe_int(config_data.get("agent_count"), DEFAULT_AGENT_COUNT),
+            initial_trash_count=safe_int(
+                config_data.get("initial_trash_count"),
+                DEFAULT_TRASH_COUNT,
+            ),
+            obstacle_count=safe_int(
+                config_data.get("obstacle_count"),
+                DEFAULT_OBSTACLE_COUNT,
+            ),
+            station_count=safe_int(
+                config_data.get("station_count"),
+                DEFAULT_STATION_COUNT,
+            ),
+            rest_area_count=safe_int(
+                config_data.get("rest_area_count"),
+                DEFAULT_REST_AREA_COUNT,
+            ),
+            max_turns=safe_int(config_data.get("max_turns"), DEFAULT_MAX_TURNS),
+            tick_delay=safe_int(config_data.get("tick_delay"), DEFAULT_TICK_DELAY),
+            random_seed=safe_int(config_data.get("random_seed"), DEFAULT_RANDOM_SEED),
+        )
+
+        engine = cls(config)
+        engine.turn = safe_int(data.get("turn"), 0)
+        engine.next_trash_id = safe_int(data.get("next_trash_id"), 1)
+        engine.finished = bool(data.get("finished", False))
+        engine.running = False
+
+        tile_rows = data.get("tiles", [])
+
+        if tile_rows:
+            for y, row in enumerate(tile_rows[: engine.world.height]):
+                for x, tile_name in enumerate(row[: engine.world.width]):
+                    try:
+                        engine.world.tiles[y][x] = TileType[tile_name]
+                    except KeyError:
+                        engine.world.tiles[y][x] = TileType.EMPTY
+
+        engine.world.stations = []
+
+        for station_data in data.get("stations", []):
+            station = RecyclingStation(
+                station_id=safe_int(station_data.get("station_id"), 0),
+                position=Position(
+                    safe_int(station_data.get("x"), 0),
+                    safe_int(station_data.get("y"), 0),
+                ),
+                name=str(station_data.get("name", "분리수거장")),
+                processed_count=safe_int(
+                    station_data.get("processed_count"),
+                    0,
+                ),
+                processed_weight=safe_int(
+                    station_data.get("processed_weight"),
+                    0,
+                ),
+                maintenance_count=safe_int(
+                    station_data.get("maintenance_count"),
+                    0,
+                ),
+            )
+
+            station.bins = {}
+
+            for bin_data in station_data.get("bins", []):
+                recycling_bin = RecyclingBin.from_dict(bin_data)
+                station.bins[recycling_bin.trash_kind] = recycling_bin
+
+            for kind in TrashKind:
+                station.bins.setdefault(kind, RecyclingBin(kind))
+
+            engine.world.stations.append(station)
+
+        engine.world.rest_areas = []
+
+        for area_data in data.get("rest_areas", []):
+            engine.world.rest_areas.append(
+                RestArea(
+                    area_id=safe_int(area_data.get("area_id"), 0),
+                    position=Position(
+                        safe_int(area_data.get("x"), 0),
+                        safe_int(area_data.get("y"), 0),
+                    ),
+                    name=str(area_data.get("name", "휴식 공간")),
+                    recovery_amount=safe_int(
+                        area_data.get("recovery_amount"),
+                        REST_RECOVERY_AMOUNT,
+                    ),
+                    usage_count=safe_int(area_data.get("usage_count"), 0),
+                    total_recovered_energy=safe_int(
+                        area_data.get("total_recovered_energy"),
+                        0,
+                    ),
+                )
+            )
+
+        engine.agents = [
+            CleanerAgent.from_dict(agent_data)
+            for agent_data in data.get("agents", [])
+        ]
+
+        engine.trash_items = {}
+
+        for trash_data in data.get("trash_items", []):
+            trash = Trash.from_dict(trash_data)
+            engine.trash_items[trash.trash_id] = trash
+
+        engine.environment = EnvironmentState.from_dict(
+            data.get("environment", {})
+        )
+        engine.statistics = SimulationStatistics.from_dict(
+            data.get("statistics", {})
+        )
+
+        engine.events = []
+
+        for event_data in data.get("events", []):
+            try:
+                event_type = EventType[event_data.get("event_type", "INFO")]
+            except KeyError:
+                event_type = EventType.INFO
+
+            engine.events.append(
+                SimulationEvent(
+                    turn=safe_int(event_data.get("turn"), 0),
+                    event_type=event_type,
+                    message=str(event_data.get("message", "")),
+                )
+            )
+
+        engine.pathfinder = PathFinder(engine.world)
+        engine.add_event(EventType.SYSTEM, f"저장 파일을 불러왔습니다: {path}")
+        return engine
 
 
 class SimulationApp:
+    TILE_COLORS = {
+        TileType.EMPTY: "#E8F5E9",
+        TileType.WALL: "#5D4037",
+        TileType.WATER: "#81D4FA",
+        TileType.FLOWER: "#F8BBD0",
+        TileType.STATION: "#90CAF9",
+        TileType.REST_AREA: "#C5E1A5",
+    }
+
     def __init__(
         self,
         root: tk.Tk,
     ) -> None:
         self.root = root
-        self.root.title(
-            APP_TITLE
-        )
+        self.root.title(APP_TITLE)
 
-        self.engine = (
-            SimulationEngine()
-        )
+        self.engine = SimulationEngine()
+        self.after_id: Optional[str] = None
+        self.selected_agent_id: Optional[int] = None
+
+        self.speed_var = tk.IntVar(value=self.engine.config.tick_delay)
+        self.status_var = tk.StringVar(value="정지")
+        self.turn_var = tk.StringVar(value="턴: 0")
+        self.weather_var = tk.StringVar(value="날씨: 맑음")
+        self.trash_var = tk.StringVar(value="쓰레기: 0개")
+
+        self.build_ui()
+        self.bind_events()
+        self.refresh()
+
+    def build_ui(self) -> None:
+        top = ttk.Frame(self.root, padding=8)
+        top.pack(side=tk.TOP, fill=tk.X)
+
+        ttk.Button(top, text="시작", command=self.start).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="일시정지", command=self.pause).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="한 턴", command=self.step_once).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="초기화", command=self.reset).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="쓰레기 추가", command=self.add_trash).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="저장", command=self.save).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="불러오기", command=self.load).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="보고서", command=self.show_report).pack(side=tk.LEFT, padx=3)
+
+        ttk.Label(top, text="속도").pack(side=tk.LEFT, padx=(18, 4))
+        ttk.Scale(
+            top,
+            from_=20,
+            to=1000,
+            orient=tk.HORIZONTAL,
+            variable=self.speed_var,
+            length=150,
+        ).pack(side=tk.LEFT)
+
+        ttk.Label(top, textvariable=self.status_var).pack(side=tk.RIGHT, padx=8)
+        ttk.Label(top, textvariable=self.trash_var).pack(side=tk.RIGHT, padx=8)
+        ttk.Label(top, textvariable=self.weather_var).pack(side=tk.RIGHT, padx=8)
+        ttk.Label(top, textvariable=self.turn_var).pack(side=tk.RIGHT, padx=8)
+
+        main = ttk.Frame(self.root, padding=(8, 0, 8, 0))
+        main.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.canvas = tk.Canvas(
-            root,
-            width=MAP_WIDTH * CELL_SIZE,
-            height=MAP_HEIGHT * CELL_SIZE,
+            main,
+            width=self.engine.config.width * CELL_SIZE,
+            height=self.engine.config.height * CELL_SIZE,
+            highlightthickness=1,
+            highlightbackground="#999999",
+        )
+        self.canvas.pack(side=tk.LEFT)
+
+        side = ttk.Frame(main, padding=(10, 0, 0, 0))
+        side.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        ttk.Label(
+            side,
+            text="청소원 목록",
+            font=("맑은 고딕", 11, "bold"),
+        ).pack(anchor=tk.W)
+
+        self.agent_tree = ttk.Treeview(
+            side,
+            columns=("state", "energy", "bag", "score"),
+            show="headings",
+            height=9,
+        )
+        self.agent_tree.heading("state", text="상태")
+        self.agent_tree.heading("energy", text="체력")
+        self.agent_tree.heading("bag", text="가방")
+        self.agent_tree.heading("score", text="점수")
+        self.agent_tree.column("state", width=125)
+        self.agent_tree.column("energy", width=50, anchor=tk.CENTER)
+        self.agent_tree.column("bag", width=55, anchor=tk.CENTER)
+        self.agent_tree.column("score", width=55, anchor=tk.CENTER)
+        self.agent_tree.pack(fill=tk.X, pady=(4, 8))
+
+        ttk.Label(
+            side,
+            text="상세 정보",
+            font=("맑은 고딕", 11, "bold"),
+        ).pack(anchor=tk.W)
+
+        self.detail_text = tk.Text(
+            side,
+            width=42,
+            height=15,
+            wrap=tk.WORD,
+            font=("맑은 고딕", 9),
+        )
+        self.detail_text.pack(fill=tk.BOTH, expand=True, pady=(4, 8))
+
+        ttk.Label(
+            side,
+            text="최근 이벤트",
+            font=("맑은 고딕", 11, "bold"),
+        ).pack(anchor=tk.W)
+
+        self.log_text = tk.Text(
+            side,
+            width=42,
+            height=10,
+            wrap=tk.WORD,
+            font=("Consolas", 8),
+        )
+        self.log_text.pack(fill=tk.BOTH, expand=True, pady=(4, 0))
+
+    def bind_events(self) -> None:
+        self.canvas.bind("<Button-1>", self.on_canvas_click)
+        self.agent_tree.bind("<<TreeviewSelect>>", self.on_agent_select)
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
+
+    def start(self) -> None:
+        if self.engine.finished:
+            messagebox.showinfo(APP_TITLE, "이미 종료된 시뮬레이션입니다.")
+            return
+
+        if self.engine.running:
+            return
+
+        self.engine.running = True
+        self.status_var.set("실행 중")
+        self.schedule_next()
+
+    def pause(self) -> None:
+        self.engine.running = False
+        self.status_var.set("일시정지")
+
+        if self.after_id is not None:
+            self.root.after_cancel(self.after_id)
+            self.after_id = None
+
+    def step_once(self) -> None:
+        self.pause()
+        self.engine.step()
+        self.refresh()
+
+    def reset(self) -> None:
+        self.pause()
+
+        if not messagebox.askyesno(APP_TITLE, "처음부터 다시 시작할까요?"):
+            return
+
+        self.engine = SimulationEngine(self.engine.config)
+        self.selected_agent_id = None
+        self.speed_var.set(self.engine.config.tick_delay)
+        self.status_var.set("정지")
+        self.refresh()
+
+    def add_trash(self) -> None:
+        created = self.engine.spawn_trash(5)
+        self.engine.add_event(
+            EventType.TRASH_SPAWN,
+            f"사용자가 쓰레기 {created}개를 추가했습니다.",
+        )
+        self.refresh()
+
+    def save(self) -> None:
+        path = filedialog.asksaveasfilename(
+            title="시뮬레이션 저장",
+            defaultextension=".json",
+            initialfile=SAVE_FILE_NAME,
+            filetypes=[("JSON 파일", "*.json"), ("모든 파일", "*.*")],
         )
 
-        self.canvas.pack(
-            side=tk.LEFT
+        if not path:
+            return
+
+        try:
+            self.engine.save(path)
+        except Exception as error:
+            messagebox.showerror(APP_TITLE, f"저장 중 오류가 발생했습니다.\n{error}")
+            return
+
+        self.refresh()
+        messagebox.showinfo(APP_TITLE, "저장했습니다.")
+
+    def load(self) -> None:
+        self.pause()
+        path = filedialog.askopenfilename(
+            title="시뮬레이션 불러오기",
+            filetypes=[("JSON 파일", "*.json"), ("모든 파일", "*.*")],
         )
 
-        self.info = tk.Text(
-            root,
-            width=38,
+        if not path:
+            return
+
+        try:
+            self.engine = SimulationEngine.load(path)
+        except Exception as error:
+            messagebox.showerror(APP_TITLE, f"불러오기 중 오류가 발생했습니다.\n{error}")
+            return
+
+        self.selected_agent_id = None
+        self.speed_var.set(self.engine.config.tick_delay)
+        self.status_var.set("불러오기 완료")
+        self.refresh()
+
+    def show_report(self) -> None:
+        report = self.engine.summary_report()
+
+        report_window = tk.Toplevel(self.root)
+        report_window.title("시뮬레이션 결과 보고서")
+
+        text = tk.Text(
+            report_window,
+            width=75,
+            height=35,
+            font=("Consolas", 10),
+        )
+        text.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
+        text.insert(tk.END, report)
+        text.configure(state=tk.DISABLED)
+
+    def schedule_next(self) -> None:
+        if not self.engine.running:
+            return
+
+        delay = int(self.speed_var.get())
+        self.engine.config.tick_delay = delay
+        self.after_id = self.root.after(delay, self.tick)
+
+    def tick(self) -> None:
+        self.after_id = None
+
+        if not self.engine.running:
+            return
+
+        self.engine.step()
+        self.refresh()
+
+        if self.engine.finished:
+            self.status_var.set("종료")
+            messagebox.showinfo(APP_TITLE, self.engine.summary_report())
+            return
+
+        self.schedule_next()
+
+    def on_canvas_click(self, event: tk.Event) -> None:
+        position = Position(
+            event.x // CELL_SIZE,
+            event.y // CELL_SIZE,
         )
 
-        self.info.pack(
-            side=tk.RIGHT,
-            fill=tk.BOTH,
-        )
+        for agent in self.engine.agents:
+            if agent.position == position:
+                self.selected_agent_id = agent.agent_id
+                self.refresh_detail()
+                return
 
-        self.root.after(
-            DEFAULT_TICK_DELAY,
-            self.update,
-        )
+    def on_agent_select(self, _event: tk.Event) -> None:
+        selection = self.agent_tree.selection()
 
-    def draw(
+        if not selection:
+            return
+
+        try:
+            self.selected_agent_id = int(selection[0])
+        except ValueError:
+            return
+
+        self.refresh_detail()
+
+    def cell_bounds(
         self,
-    ) -> None:
-        self.canvas.delete(
-            "all"
+        position: Position,
+    ) -> Tuple[int, int, int, int]:
+        left = position.x * CELL_SIZE
+        top = position.y * CELL_SIZE
+        return left, top, left + CELL_SIZE, top + CELL_SIZE
+
+    def draw(self) -> None:
+        self.canvas.delete("all")
+        self.canvas.configure(
+            background=self.engine.environment.time_period.background_color
         )
 
-        for y in range(
-            MAP_HEIGHT
-        ):
-            for x in range(
-                MAP_WIDTH
-            ):
-                position = Position(
-                    x,
-                    y,
-                )
-
-                tile = (
-                    self.engine.world.tile_at(
-                        position
-                    )
-                )
-
-                colors = {
-                    TileType.EMPTY: "#E8F5E9",
-                    TileType.WALL: "#5D4037",
-                    TileType.WATER: "#81D4FA",
-                    TileType.FLOWER: "#F8BBD0",
-                    TileType.STATION: "#90CAF9",
-                    TileType.REST_AREA: "#C5E1A5",
-                }
+        for y in range(self.engine.world.height):
+            for x in range(self.engine.world.width):
+                position = Position(x, y)
+                tile = self.engine.world.tile_at(position)
+                left, top, right, bottom = self.cell_bounds(position)
 
                 self.canvas.create_rectangle(
-                    x * CELL_SIZE,
-                    y * CELL_SIZE,
-                    (x + 1) * CELL_SIZE,
-                    (y + 1) * CELL_SIZE,
-                    fill=colors[tile],
+                    left,
+                    top,
+                    right,
+                    bottom,
+                    fill=self.TILE_COLORS[tile],
                     outline="#CCCCCC",
                 )
 
-        for trash in (
-            self.engine.trash_items.values()
-        ):
-            x = trash.position.x
-            y = trash.position.y
+                if tile == TileType.STATION:
+                    self.canvas.create_text(
+                        (left + right) / 2,
+                        (top + bottom) / 2,
+                        text="R",
+                        font=("Arial", 11, "bold"),
+                    )
+                elif tile == TileType.REST_AREA:
+                    self.canvas.create_text(
+                        (left + right) / 2,
+                        (top + bottom) / 2,
+                        text="H",
+                        font=("Arial", 11, "bold"),
+                    )
+                elif tile == TileType.FLOWER:
+                    self.canvas.create_text(
+                        (left + right) / 2,
+                        (top + bottom) / 2,
+                        text="✿",
+                    )
+
+        for trash in self.engine.trash_items.values():
+            left, top, right, bottom = self.cell_bounds(trash.position)
 
             self.canvas.create_oval(
-                x * CELL_SIZE + 7,
-                y * CELL_SIZE + 7,
-                (x + 1) * CELL_SIZE - 7,
-                (y + 1) * CELL_SIZE - 7,
+                left + 7,
+                top + 7,
+                right - 7,
+                bottom - 7,
                 fill=trash.kind.color,
+                outline="#333333",
             )
 
-        for agent in (
-            self.engine.agents
-        ):
-            x = agent.position.x
-            y = agent.position.y
+            self.canvas.create_text(
+                (left + right) / 2,
+                (top + bottom) / 2,
+                text=trash.kind.display_name[0],
+                font=("맑은 고딕", 7, "bold"),
+            )
+
+        for agent in self.engine.agents:
+            left, top, right, bottom = self.cell_bounds(agent.position)
+            selected = agent.agent_id == self.selected_agent_id
 
             self.canvas.create_oval(
-                x * CELL_SIZE + 3,
-                y * CELL_SIZE + 3,
-                (x + 1) * CELL_SIZE - 3,
-                (y + 1) * CELL_SIZE - 3,
+                left + 3,
+                top + 3,
+                right - 3,
+                bottom - 3,
                 fill=agent.color,
+                outline="#000000" if selected else "#FFFFFF",
+                width=3 if selected else 2,
             )
 
-    def update(
-        self,
-    ) -> None:
-        self.engine.step()
-        self.draw()
+            self.canvas.create_text(
+                (left + right) / 2,
+                (top + bottom) / 2,
+                text=str(agent.agent_id),
+                fill="#FFFFFF",
+                font=("Arial", 9, "bold"),
+            )
 
-        self.info.delete(
-            "1.0",
-            tk.END,
-        )
-
-        self.info.insert(
-            tk.END,
+    def refresh_top(self) -> None:
+        self.turn_var.set(f"턴: {self.engine.turn}")
+        self.weather_var.set(
             (
-                f"현재 턴: "
-                f"{self.engine.turn}\n"
-                f"남은 쓰레기: "
-                f"{len(self.engine.trash_items)}개\n\n"
-            ),
+                f"날씨: {self.engine.environment.weather.display_name} / "
+                f"{self.engine.environment.time_period.display_name}"
+            )
         )
+        self.trash_var.set(f"쓰레기: {len(self.engine.trash_items)}개")
 
-        for agent in (
-            self.engine.agents
-        ):
-            self.info.insert(
+    def refresh_agents(self) -> None:
+        for item in self.agent_tree.get_children():
+            self.agent_tree.delete(item)
+
+        for agent in self.engine.agents:
+            self.agent_tree.insert(
+                "",
                 tk.END,
-                agent.status_text()
-                + "\n\n",
+                iid=str(agent.agent_id),
+                values=(
+                    agent.state.value,
+                    agent.energy,
+                    f"{agent.bag.total_weight}/{agent.bag.capacity}",
+                    agent.score,
+                ),
             )
 
         if (
-            self.engine.turn
-            < self.engine.config.max_turns
+            self.selected_agent_id is not None
+            and self.agent_tree.exists(str(self.selected_agent_id))
         ):
-            self.root.after(
-                self.engine.config.tick_delay,
-                self.update,
+            self.agent_tree.selection_set(str(self.selected_agent_id))
+
+    def refresh_detail(self) -> None:
+        self.detail_text.delete("1.0", tk.END)
+
+        selected = next(
+            (
+                agent
+                for agent in self.engine.agents
+                if agent.agent_id == self.selected_agent_id
+            ),
+            None,
+        )
+
+        if selected is None:
+            self.detail_text.insert(
+                tk.END,
+                self.engine.statistics.status_text(),
             )
+            return
+
+        self.detail_text.insert(
+            tk.END,
+            selected.status_text() + "\n\n" + selected.bag.description(),
+        )
+
+    def refresh_log(self) -> None:
+        self.log_text.delete("1.0", tk.END)
+
+        for event in self.engine.events[-12:]:
+            self.log_text.insert(tk.END, event.formatted() + "\n")
+
+        self.log_text.see(tk.END)
+
+    def refresh(self) -> None:
+        self.draw()
+        self.refresh_top()
+        self.refresh_agents()
+        self.refresh_detail()
+        self.refresh_log()
+
+    def close(self) -> None:
+        self.pause()
+        self.root.destroy()
 
 
-def main(
-) -> None:
+def main() -> None:
     root = tk.Tk()
 
-    SimulationApp(
-        root
-    )
+    try:
+        style = ttk.Style(root)
 
+        if "vista" in style.theme_names():
+            style.theme_use("vista")
+    except tk.TclError:
+        pass
+
+    SimulationApp(root)
     root.mainloop()
 
 
