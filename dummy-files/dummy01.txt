@@ -1,1 +1,36 @@
-Dummy file 01
+const zoneWeights = {
+  residential: 1.15,
+  school: 1.4,
+  park: 1.85,
+  riverside: 1.65,
+};
+
+function normalizeTrashScore(rawScore, crowdFactor) {
+  const adjusted = rawScore * crowdFactor;
+  if (adjusted < 0) {
+    return 0;
+  }
+
+  if (adjusted > 100) {
+    return 100;
+  }
+
+  return Number(adjusted.toFixed(2));
+}
+
+function buildZoneScore(zoneName, baseScore, crowdFactor) {
+  const weight = zoneWeights[zoneName] ?? 1;
+  const normalized = normalizeTrashScore(baseScore * weight, crowdFactor);
+
+  return {
+    zoneName,
+    baseScore,
+    crowdFactor,
+    normalized,
+  };
+}
+
+module.exports = {
+  buildZoneScore,
+  normalizeTrashScore,
+};

@@ -1,1 +1,35 @@
-Dummy file 02
+class RouteCheckpoint:
+    def __init__(self, checkpoint_id, lat, lng, expected_trash):
+        self.checkpoint_id = checkpoint_id
+        self.lat = lat
+        self.lng = lng
+        self.expected_trash = expected_trash
+
+    def to_dict(self):
+        return {
+            "checkpoint_id": self.checkpoint_id,
+            "lat": self.lat,
+            "lng": self.lng,
+            "expected_trash": self.expected_trash,
+        }
+
+
+def summarize_checkpoints(checkpoints):
+    total_trash = 0
+    serialized = []
+
+    for checkpoint in checkpoints:
+        total_trash += checkpoint.expected_trash
+        serialized.append(checkpoint.to_dict())
+
+    return {
+        "count": len(checkpoints),
+        "total_trash": total_trash,
+        "items": serialized,
+    }
+
+
+sample_route = [
+    RouteCheckpoint("cp-01", 35.1584, 129.1603, 4),
+    RouteCheckpoint("cp-02", 35.1591, 129.1612, 6),
+]
