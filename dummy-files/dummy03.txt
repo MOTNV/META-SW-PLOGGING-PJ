@@ -1,1 +1,26 @@
-Dummy file 03
+export function createHeatmapLegend() {
+  return [
+    { label: "Very Low", color: "#d9f0d3", threshold: 10 },
+    { label: "Low", color: "#a6dba0", threshold: 25 },
+    { label: "Medium", color: "#5aae61", threshold: 45 },
+    { label: "High", color: "#1b7837", threshold: 70 },
+    { label: "Critical", color: "#00441b", threshold: 90 },
+  ];
+}
+
+export function findLegendBucket(score) {
+  const legend = createHeatmapLegend();
+
+  for (const item of legend) {
+    if (score <= item.threshold) {
+      return item;
+    }
+  }
+
+  return legend[legend.length - 1];
+}
+
+export function formatLegendLabel(score) {
+  const bucket = findLegendBucket(score);
+  return `${bucket.label} (${bucket.threshold})`;
+}

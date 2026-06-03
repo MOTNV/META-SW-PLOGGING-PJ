@@ -1,1 +1,29 @@
-Dummy file 04
+from dataclasses import dataclass
+from typing import List
+
+
+@dataclass
+class AgentState:
+    agent_id: str
+    stamina: int
+    bag_capacity: int
+    collected: int = 0
+
+
+def allocate_remaining_capacity(agent_states: List[AgentState]) -> int:
+    remaining = 0
+
+    for state in agent_states:
+        remaining += max(state.bag_capacity - state.collected, 0)
+
+    return remaining
+
+
+def choose_resting_agents(agent_states: List[AgentState]) -> List[str]:
+    resting = []
+
+    for state in agent_states:
+        if state.stamina < 30:
+            resting.append(state.agent_id)
+
+    return resting
