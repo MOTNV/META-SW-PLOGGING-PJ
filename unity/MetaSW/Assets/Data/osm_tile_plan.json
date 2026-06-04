@@ -1,0 +1,176 @@
+{
+  "sourceBounds": {
+    "minLatitude": 35.94056,
+    "minLongitude": 126.67704,
+    "maxLatitude": 35.95116,
+    "maxLongitude": 126.68535,
+    "sourceFile": "D:\\4year\\플로깅 라벨링\\map.osm",
+    "type": "osm"
+  },
+  "zoom": 17,
+  "tileSize": 256,
+  "tileRange": {
+    "xStart": 111657,
+    "xEnd": 111660,
+    "yStart": 51492,
+    "yEnd": 51496
+  },
+  "tileCount": 20,
+  "mosaicSize": {
+    "width": 1024,
+    "height": 1280
+  },
+  "coveredBounds": {
+    "north": 35.95132986152265,
+    "south": 35.94021206888745,
+    "west": 126.67510986328125,
+    "east": 126.68609619140625
+  },
+  "tiles": [
+    {
+      "x": 111657,
+      "y": 51492,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111657/51492.png",
+      "filename": "17_111657_51492.png"
+    },
+    {
+      "x": 111657,
+      "y": 51493,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111657/51493.png",
+      "filename": "17_111657_51493.png"
+    },
+    {
+      "x": 111657,
+      "y": 51494,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111657/51494.png",
+      "filename": "17_111657_51494.png"
+    },
+    {
+      "x": 111657,
+      "y": 51495,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111657/51495.png",
+      "filename": "17_111657_51495.png"
+    },
+    {
+      "x": 111657,
+      "y": 51496,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111657/51496.png",
+      "filename": "17_111657_51496.png"
+    },
+    {
+      "x": 111658,
+      "y": 51492,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111658/51492.png",
+      "filename": "17_111658_51492.png"
+    },
+    {
+      "x": 111658,
+      "y": 51493,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111658/51493.png",
+      "filename": "17_111658_51493.png"
+    },
+    {
+      "x": 111658,
+      "y": 51494,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111658/51494.png",
+      "filename": "17_111658_51494.png"
+    },
+    {
+      "x": 111658,
+      "y": 51495,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111658/51495.png",
+      "filename": "17_111658_51495.png"
+    },
+    {
+      "x": 111658,
+      "y": 51496,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111658/51496.png",
+      "filename": "17_111658_51496.png"
+    },
+    {
+      "x": 111659,
+      "y": 51492,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111659/51492.png",
+      "filename": "17_111659_51492.png"
+    },
+    {
+      "x": 111659,
+      "y": 51493,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111659/51493.png",
+      "filename": "17_111659_51493.png"
+    },
+    {
+      "x": 111659,
+      "y": 51494,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111659/51494.png",
+      "filename": "17_111659_51494.png"
+    },
+    {
+      "x": 111659,
+      "y": 51495,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111659/51495.png",
+      "filename": "17_111659_51495.png"
+    },
+    {
+      "x": 111659,
+      "y": 51496,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111659/51496.png",
+      "filename": "17_111659_51496.png"
+    },
+    {
+      "x": 111660,
+      "y": 51492,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111660/51492.png",
+      "filename": "17_111660_51492.png"
+    },
+    {
+      "x": 111660,
+      "y": 51493,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111660/51493.png",
+      "filename": "17_111660_51493.png"
+    },
+    {
+      "x": 111660,
+      "y": 51494,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111660/51494.png",
+      "filename": "17_111660_51494.png"
+    },
+    {
+      "x": 111660,
+      "y": 51495,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111660/51495.png",
+      "filename": "17_111660_51495.png"
+    },
+    {
+      "x": 111660,
+      "y": 51496,
+      "z": 17,
+      "url": "https://tile.openstreetmap.org/17/111660/51496.png",
+      "filename": "17_111660_51496.png"
+    }
+  ],
+  "notes": [
+    "이 파일은 다운로드 계획과 합성 범위를 계산하기 위한 dry-run 결과입니다.",
+    "실제 다운로드 전에는 타일 소스 정책을 확인하세요.",
+    "Unity 배경 합성 이미지의 실제 bbox는 coveredBounds를 사용하는 편이 안전합니다."
+  ]
+}
