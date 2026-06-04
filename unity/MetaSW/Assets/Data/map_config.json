@@ -1,0 +1,36 @@
+{
+  "selectedBounds": {
+    "minLatitude": 35.94056,
+    "minLongitude": 126.67704,
+    "maxLatitude": 35.95116,
+    "maxLongitude": 126.68535,
+    "sourceFile": "D:\\4year\\플로깅 라벨링\\map.osm",
+    "type": "osm"
+  },
+  "recordBoundsReference": {
+    "minLatitude": 35.94083055555555,
+    "minLongitude": 126.67761666666667,
+    "maxLatitude": 35.94908611111111,
+    "maxLongitude": 126.68564166666667,
+    "sourceFile": "D:\\4year\\플로깅 라벨링\\visualizations\\merged_records.json",
+    "type": "records"
+  },
+  "center": {
+    "latitude": 35.945859999999996,
+    "longitude": 126.681195
+  },
+  "recommendedImage": {
+    "width": 4096,
+    "height": 4096,
+    "outputPath": "D:\\4year\\플로깅 라벨링\\unity\\MetaSW\\Assets\\Sprites\\gunsan_campus_map.png"
+  },
+  "instructions": {
+    "summary": "map.osm bounds를 기준으로 Unity 배경맵을 준비할 때 쓰는 설정 파일입니다.",
+    "steps": [
+      "선택된 bounds와 같은 범위로 군산대 OSM 배경맵 이미지를 준비합니다.",
+      "배경 이미지를 Unity Assets/Sprites/gunsan_campus_map.png 로 저장합니다.",
+      "TrashMapLoader의 min/max latitude/longitude를 selectedBounds 값과 동일하게 맞춥니다.",
+      "그 후 Play 해서 쓰레기 포인트 위치를 확인합니다."
+    ]
+  }
+}
