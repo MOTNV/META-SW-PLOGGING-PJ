@@ -1,1 +1,31 @@
-Dummy file 05
+function createSimulationConfig() {
+  return {
+    mapName: "busan-campus-sector",
+    tickIntervalMs: 500,
+    maxAgents: 12,
+    maxRouteDistanceKm: 4.5,
+    weatherFallback: "clear",
+    hazardPenalty: 0.35,
+    densityWindow: [0.2, 0.45, 0.8],
+  };
+}
+
+function mergeOverrides(baseConfig, overrides = {}) {
+  return {
+    ...baseConfig,
+    ...overrides,
+    densityWindow: overrides.densityWindow ?? baseConfig.densityWindow,
+  };
+}
+
+const defaultConfig = createSimulationConfig();
+const rainyModeConfig = mergeOverrides(defaultConfig, {
+  weatherFallback: "rain",
+  maxRouteDistanceKm: 3.1,
+});
+
+module.exports = {
+  createSimulationConfig,
+  mergeOverrides,
+  rainyModeConfig,
+};
