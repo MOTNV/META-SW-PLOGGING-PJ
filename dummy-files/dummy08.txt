@@ -1,1 +1,19 @@
-Dummy file 08
+def build_training_schedule():
+    return [
+        {"epoch": 1, "epsilon": 1.0, "learning_rate": 0.0008},
+        {"epoch": 2, "epsilon": 0.92, "learning_rate": 0.0008},
+        {"epoch": 3, "epsilon": 0.84, "learning_rate": 0.0006},
+        {"epoch": 4, "epsilon": 0.76, "learning_rate": 0.0006},
+        {"epoch": 5, "epsilon": 0.68, "learning_rate": 0.0004},
+    ]
+
+
+def find_epoch_config(schedule, epoch):
+    for item in schedule:
+        if item["epoch"] == epoch:
+            return item
+
+    return schedule[-1]
+
+
+training_schedule = build_training_schedule()
