@@ -1,1 +1,26 @@
-Dummy file 09
+const sectorSummary = [
+  { sectorId: "A-01", walkableEdges: 18, blockedEdges: 2 },
+  { sectorId: "A-02", walkableEdges: 14, blockedEdges: 4 },
+  { sectorId: "B-01", walkableEdges: 11, blockedEdges: 6 },
+];
+
+function countBlockedEdges(items) {
+  return items.reduce((total, item) => total + item.blockedEdges, 0);
+}
+
+function countWalkableEdges(items) {
+  return items.reduce((total, item) => total + item.walkableEdges, 0);
+}
+
+function buildSectorReport(items) {
+  return {
+    totalWalkableEdges: countWalkableEdges(items),
+    totalBlockedEdges: countBlockedEdges(items),
+    sectors: items,
+  };
+}
+
+module.exports = {
+  buildSectorReport,
+  sectorSummary,
+};

@@ -1,1 +1,23 @@
-Dummy file 10
+from collections import defaultdict
+
+
+def group_pickups_by_hour(events):
+    grouped = defaultdict(int)
+
+    for event in events:
+        hour_key = event["timestamp"][11:13]
+        grouped[hour_key] += event["pickup_count"]
+
+    return dict(grouped)
+
+
+def find_peak_hour(grouped_counts):
+    best_hour = None
+    best_count = -1
+
+    for hour_key, count in grouped_counts.items():
+        if count > best_count:
+            best_hour = hour_key
+            best_count = count
+
+    return best_hour, best_count
